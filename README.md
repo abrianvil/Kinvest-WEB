@@ -1,75 +1,63 @@
 # Kinvest Web
 
-Opinionated Next.js (pages router) starter with [Clerk](https://clerk.com) authentication pre-wired.
+Full-stack Next.js (pages router) app for running collective saving rotations with Clerk auth and a Node/Prisma API (default `http://localhost:4000`).
 
-## Getting started
+## What’s inside
 
-1. Install dependencies:
+- **Auth:** Clerk (`ClerkProvider` in `_app.js`, protected routes via `proxy.js` matcher). All upstream `/api/*` calls include a Clerk bearer token minted with the configured JWT template.
+- **Features:** Dashboard with rotation snapshot, group/collective pages (invitations, cycles, contributions), wallet console (balances + transactions), notification inbox, invite detail pages.
+- **API proxy:** Local routes under `pages/api` forward to the backend, adding the Clerk bearer token so you don’t fight CORS.
 
-   ```bash
-   npm install
-   ```
+## Requirements
 
-2. Copy environment variables and add keys from the Clerk dashboard + API:
+- Node 18+ and npm.
+- Backend API running at `API_URL`/`NEXT_PUBLIC_API_URL` (defaults to `http://localhost:4000`) with the routes shown below.
+- Clerk project + JWT template (set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_JWT_TEMPLATE`/`NEXT_PUBLIC_CLERK_JWT_TEMPLATE`).
 
-   ```bash
-   cp .env.local.example .env.local
-   ```
+## Setup
 
-   Required keys:
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-   - `CLERK_SECRET_KEY`
-   - `CLERK_JWT_TEMPLATE` / `NEXT_PUBLIC_CLERK_JWT_TEMPLATE` – set if your API expects a custom Clerk JWT template.
-   - `API_URL` – internal server-to-server base (default `http://localhost:4000`)
-   - `NEXT_PUBLIC_API_URL` – client base (default `http://localhost:4000`)
+```bash
+npm install
+cp .env.local.example .env.local
+# fill Clerk keys and API URL(s)
+npm run dev
+# app at http://localhost:3000
+```
 
-3. Run the dev server:
+> Note: Next 16 uses `proxy.js` (not `middleware.js`) for route protection. The existing matcher guards `/dashboard`, `/groups`, `/wallets`, `/activity`, `/settings`.
 
-   ```bash
-   npm run dev
-   ```
+## Key pages
 
-   Visit http://localhost:3000.
+- `/dashboard` – rotation snapshot, collectives list, wallet ledger.
+- `/groups` – manage/scan invitations, create collectives.
+- `/groups/[groupId]` – collective summary, rotation timeline, payout history, record contributions.
+- `/wallets` – list/create wallets, view transactions.
+- `/invitations/[invitationId]` – accept/decline + history.
 
-## Auth flow
+## Backend endpoints (expected)
 
-- `_app.js` wraps the app with `ClerkProvider`.
-- `hooks/useSyncUserProfile` calls a local proxy (`/api/bootstrap/user`) which forwards to `/api/users/me` on your backend with the Clerk bearer token (minted with the configured JWT template), ensuring every newly signed-in user is mirrored in Postgres without CORS headaches.
-- `pages/dashboard.js` fetches `/api/users/me`, `/api/users/me/metrics`, `/api/groups`, and `/api/wallets` on the server (using the Clerk session token) to hydrate the post-auth landing view.
-- `middleware.js` protects `/dashboard` and other routes you add to `isProtectedRoute`.
-- `pages/dashboard.js` uses `withServerSideAuth` to fetch the authed user on the server.
-
-## API routes
-
-All upstream `/api/*` requests now **must** include a valid Clerk bearer token header (`Authorization: Bearer <token>`). Mint this token with your configured JWT template via Clerk (see `CLERK_JWT_TEMPLATE` / `NEXT_PUBLIC_CLERK_JWT_TEMPLATE`).
-
-| Route | Method | Description |
+| Route | Method | Purpose |
 | --- | --- | --- |
-| `/health` | GET | Basic liveness probe. |
-| `/api/users/me` | GET | Returns the signed-in user's profile, memberships, and latest ledger entries. |
-| `/api/users/me` | PUT | Updates profile fields (`displayName`, `avatarUrl`, `locale`). |
-| `/api/users/me/metrics` | GET | Aggregated contribution / payout stats. |
-| `/api/groups` | GET/POST | List accessible groups or create a new group. |
-| `/api/groups/:groupId` | GET | Detailed group view with members and recent cycles. |
-| `/api/groups/:groupId/members` | POST | Invite/activate a member (owner/admin only). |
-| `/api/groups/:groupId/cycles` | POST | Start a new saving cycle and seed participants. |
-| `/api/groups/:groupId/contributions` | POST | Record a member contribution and optional ledger transaction. |
-| `/api/groups/:groupId/payouts` | POST | Log a payout to a receiver wallet. |
-| `/api/dashboard/overview` | GET | Snapshot of profile, wallet, group, and ledger data for the overview screen. |
-| `/api/wallets` | GET/POST | List or create personal wallets (per currency). |
-| `/api/wallets/:walletId/transactions` | GET/POST | Inspect or manually insert wallet transactions. |
-| `/api/payments/intents` | GET/POST | CRUD for PaymentIntent records used for gateway reconciliation. |
-| `/api/payments/intents/:intentId` | PATCH | Update intent status after provider callbacks. |
+| `/api/dashboard/overview` | GET | Profile, wallets, groups, ledger for the dashboard. |
+| `/api/groups` | GET/POST | List or create collectives. |
+| `/api/groups/:groupId` | GET | Group detail with members/cycles/insights. |
+| `/api/groups/:groupId/members` | POST | Invite/activate member (owner/admin). |
+| `/api/groups/:groupId/cycles` | POST | Create a cycle manually. |
+| `/api/groups/:groupId/cycles/generate` | POST | Auto-generate rotation cycles. |
+| `/api/groups/:groupId/contributions` | POST | Record a member contribution. |
+| `/api/groups/:groupId/payouts` | POST | Log a payout. |
+| `/api/wallets` | GET/POST | List or create wallets (per currency). |
+| `/api/wallets/:walletId/transactions` | GET/POST | Read or create wallet transactions. |
+| `/api/users/me` | GET/PUT | Read/update current profile. |
 
-## Styling
+## Scripts
 
-- Tailwind CSS 3.x is configured via `tailwind.config.js` and `postcss.config.js`; `styles/globals.css` imports Tailwind layers and defines a few reusable component classes (`layout`, `card`, `cta`).
-- Update `tailwind.config.js` to extend tokens (colors, fonts, etc.) and keep shared UI patterns inside `@layer components` blocks for easy reuse.
+- `npm run dev` – start Next.js dev server.
+- `npm run build` / `npm run start` – prod build and serve.
+- `npm run lint` – Next.js lint.
 
-## Useful scripts
+## Contributing notes
 
-- `npm run dev` – start Next.js in development mode.
-- `npm run build` – create a production build.
-- `npm run start` – run the production server.
-- `npm run lint` – lint with `next lint`.
-# Kinvest-WEB
+- Tailwind 3.x tokens live in `tailwind.config.js`; shared component styles in `styles/globals.css`.
+- React Query handles data fetching; API hooks live under `components/features/**/use*.js`.
+- Keep proxy auth in place when adding new API calls so Clerk tokens reach the backend.
