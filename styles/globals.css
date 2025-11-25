@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Space Grotesk', 'Inter', 'Helvetica', 'Arial', sans-serif;
+  --color-bg-0: #0a0a0a;
+  --color-bg-1: #121212;
+  --color-bg-2: #1b1b1b;
+  --color-line: #2a2a2a;
+  --color-accent-tech: #00f5a0;
+  --color-accent-tech-dim: #00c97c;
+  --color-accent-tech-soft: #00f5a022;
+  --color-warm-1: #c46f3b;
+  --color-warm-2: #a96534;
+  --color-warm-soft: #b1744933;
+  --color-warm-light: #dfccb4;
+  --color-text-primary: #f3f3f3;
+  --color-text-secondary: #c8c8c8;
+  --color-text-muted: #888888;
+  --color-text-warm: #e0c0aa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-0);
+    color: var(--color-text-primary);
+    @apply min-h-screen antialiased;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  main {
+    @apply min-h-screen px-4 py-10;
+  }
+}
+
+@layer components {
+  .layout {
+    @apply mx-auto w-full max-w-3xl;
+  }
+
+  .card {
+    @apply rounded-[12px] bg-night-2 p-8 shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-line/70 px-4 py-1 text-xs uppercase tracking-[0.4em] text-text-secondary;
+  }
+
+  .cta {
+    @apply inline-flex items-center justify-center rounded-full px-6 py-2.5 font-semibold transition-colors;
+  }
+
+  .cta-primary {
+    @apply bg-warm-1 text-black shadow-warmGlow hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1;
+  }
+
+  .cta-secondary {
+    @apply border border-line text-text-secondary hover:border-text-primary hover:text-text-primary;
+  }
+}
+
+/* Clerk auth form tweaks */
+.cl-formFieldRow {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cl-formFieldRow .cl-formField {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.notification-glow {
+  position: relative;
+  animation: notificationGlow 1.8s ease-in-out infinite;
+  box-shadow: 0 0 22px rgba(0, 245, 160, 0.45);
+}
+
+.notification-glow::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  background: rgba(0, 245, 160, 0.18);
+  filter: blur(12px);
+  z-index: -1;
+}
+
+@keyframes notificationGlow {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 12px rgba(0, 245, 160, 0.25);
+  }
+  50% {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(0, 245, 160, 0.65);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 12px rgba(0, 245, 160, 0.25);
+  }
+}
