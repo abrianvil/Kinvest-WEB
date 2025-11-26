@@ -121,6 +121,7 @@ export function CreateGroupForm({ onCreated }) {
         await generateCycles.mutateAsync({
           groupId: createdGroup.id,
           startDate: formState.cycleStartDate,
+          iterations:Number(formState.slotCount),
         });
       }
       setFormState(defaultFormState);
