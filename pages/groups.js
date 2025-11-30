@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
@@ -39,21 +39,19 @@ function GroupsPage({ user }) {
     });
   }, [availableGroups, userId]);
 
-  const resolvedActiveGroupId = useMemo(() => {
-    if (
-      activeGroupId &&
-      activeGroups.some((group) => group.id === activeGroupId)
-    ) {
-      return activeGroupId;
-    }
-    return activeGroups[0]?.id ?? '';
-  }, [activeGroupId, activeGroups]);
+  const hasActiveSelection = useMemo(
+    () => activeGroups.some((group) => group.id === activeGroupId),
+    [activeGroupId, activeGroups],
+  );
+  const selectedGroupId = hasActiveSelection ? activeGroupId : '';
 
-  useEffect(() => {
-    if (resolvedActiveGroupId) {
+  const selectGroup = useCallback((groupId) => {
+    const nextId = groupId || '';
+    setActiveGroupId(nextId);
+    if (nextId) {
       setIsInvitePanelOpen(true);
     }
-  }, [resolvedActiveGroupId]);
+  }, []);
 
   return (
     <>
@@ -74,7 +72,7 @@ function GroupsPage({ user }) {
                 open({
                   onCreated: (group) => {
                     if (group?.id) {
-                      setActiveGroupId(group.id);
+                      selectGroup(group.id);
                     }
                   },
                 })
@@ -115,10 +113,13 @@ function GroupsPage({ user }) {
                     ) : activeGroups.length ? (
                       <select
                         id="active-group"
-                        value={resolvedActiveGroupId}
-                        onChange={(event) => setActiveGroupId(event.target.value)}
+                        value={selectedGroupId}
+                        onChange={(event) => selectGroup(event.target.value)}
                         className="mt-2 w-full rounded-2xl border border-line bg-night-0/20 px-4 py-2 text-sm text-text-primary focus:border-accent-tech focus:outline-none"
                       >
+                        <option value="" disabled>
+                          Select a group
+                        </option>
                         {activeGroups.map((group) => (
                           <option key={group.id} value={group.id}>
                             {group.name ?? 'Untitled group'}
@@ -130,8 +131,8 @@ function GroupsPage({ user }) {
                         You are not a member of any groups yet.
                       </p>
                     )}
-                  </div>
-                  <InvitePanel groupId={resolvedActiveGroupId || null} />
+                </div>
+                  <InvitePanel groupId={selectedGroupId || null} />
                 </>
               ) : (
                 <div className="rounded-2xl border border-line/60 bg-night-1/40 p-4 text-sm">
@@ -152,7 +153,7 @@ function GroupsPage({ user }) {
                         open({
                           onCreated: (group) => {
                             if (group?.id) {
-                              setActiveGroupId(group.id);
+                              selectGroup(group.id);
                             }
                           },
                         })
@@ -200,7 +201,7 @@ function GroupsPage({ user }) {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => setActiveGroupId(group.id)}
+                          onClick={() => selectGroup(group.id)}
                           className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary transition hover:border-accent-tech hover:text-accent-tech"
                         >
                           Manage invites
