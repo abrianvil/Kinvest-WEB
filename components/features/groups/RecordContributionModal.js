@@ -15,6 +15,7 @@ export function RecordContributionModal({
 }) {
   const [formState, setFormState] = useState(DEFAULT_STATE);
   const [selectedCycleId, setSelectedCycleId] = useState(cycleOptions[0]?.id ?? '');
+  const [errorMessage, setErrorMessage] = useState('');
   const recordContribution = useRecordContribution();
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function RecordContributionModal({
   useEffect(() => {
     if (!isOpen) {
       setFormState(DEFAULT_STATE);
+      setErrorMessage('');
     }
   }, [isOpen]);
 
@@ -42,21 +44,31 @@ export function RecordContributionModal({
 
   const selectedCycle = cycleOptions.find((cycle) => cycle.id === selectedCycleId) || cycleOptions[0];
   const hasContributed = selectedCycle?.hasContributed ?? false;
+  const amountValue = Number(formState.amount);
+  const amountIsValid = Number.isFinite(amountValue) && amountValue > 0;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage('');
     if (hasContributed) return;
+    if (!amountIsValid) {
+      setErrorMessage('Enter a contribution amount greater than 0.');
+      return;
+    }
+    if (!selectedCycleId && !cycleOptions[0]?.id) {
+      setErrorMessage('No cycle is available for recording this contribution.');
+      return;
+    }
     try {
       await recordContribution.mutateAsync({
         groupId,
         cycleId: selectedCycleId || cycleOptions[0]?.id,
-        amount: Number(formState.amount),
+        amount: amountValue,
         walletId: formState.walletId || undefined,
       });
       onClose?.();
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      setErrorMessage(error?.message ?? 'Unable to record contribution. Please try again.');
     }
   };
 
@@ -138,6 +150,9 @@ export function RecordContributionModal({
               ? 'Recording…'
               : 'Record contribution'}
           </button>
+          {errorMessage ? (
+            <p className="text-center text-xs text-warm-light">{errorMessage}</p>
+          ) : null}
           {hasContributed ? (
             <p className="text-xs text-text-secondary text-center">
               You have already contributed to this cycle.

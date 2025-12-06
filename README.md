@@ -22,6 +22,10 @@ cp .env.local.example .env.local
 # fill Clerk keys and API URL(s)
 npm run dev
 # app at http://localhost:3000
+
+# proxy mode
+# client calls default through Next.js API proxy; to call the backend directly from the browser, set:
+# NEXT_PUBLIC_USE_API_PROXY=false
 ```
 
 > Note: Next 16 uses `proxy.js` (not `middleware.js`) for route protection. The existing matcher guards `/dashboard`, `/groups`, `/wallets`, `/activity`, `/settings`.

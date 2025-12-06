@@ -22,6 +22,7 @@ function WalletsPage({ user }) {
   const wallets = walletsQuery.data ?? [];
   const [activeWalletId, setActiveWalletId] = useState('');
   const [currencyInput, setCurrencyInput] = useState('USD');
+  const [createError, setCreateError] = useState('');
   const createWallet = useCreateWallet();
 
   useEffect(() => {
@@ -41,13 +42,19 @@ function WalletsPage({ user }) {
 
   const handleCreateWallet = async (event) => {
     event.preventDefault();
+    setCreateError('');
+    const trimmed = currencyInput.trim().toUpperCase();
+    if (!trimmed || trimmed.length !== 3) {
+      setCreateError('Currency must be a 3-letter code.');
+      return;
+    }
     try {
-      const result = await createWallet.mutateAsync({ currency: currencyInput.trim().toUpperCase() });
+      const result = await createWallet.mutateAsync({ currency: trimmed });
       if (result?.id) {
         setActiveWalletId(result.id);
       }
     } catch (error) {
-      console.error('Unable to create wallet', error); // eslint-disable-line no-console
+      setCreateError(error?.message ?? 'Unable to create wallet. Please try again.');
     }
   };
 
@@ -87,6 +94,9 @@ function WalletsPage({ user }) {
                   {createWallet.isPending ? 'Creating…' : 'New wallet'}
                 </button>
               </form>
+              {createError ? (
+                <p className="text-sm text-warm-light">{createError}</p>
+              ) : null}
             </div>
           </section>
 
