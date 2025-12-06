@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
@@ -123,14 +123,6 @@ function Dashboard({ user, overview }) {
   const walletsData = normalized.wallets;
   const ledgerEntries = normalized.ledgerEntries;
 
-  useEffect(() => {
-    console.log('[dashboard] overview query state', {
-      isLoading: overviewQuery.isFetching,
-      isError: overviewQuery.isError,
-      dataPreview: normalized,
-    });
-  }, [overviewQuery.isFetching, overviewQuery.isError, normalized]);
-
   const isLoading = overviewQuery.isFetching;
   const hasError = overviewQuery.isError;
 
@@ -152,13 +144,7 @@ function Dashboard({ user, overview }) {
         nextCycle: deriveNextCycle(membership),
       }));
 
-  const ledger = ledgerEntries.length
-    ? ledgerEntries
-    : [
-        { label: 'Contribution posted', amount: '-$650', date: 'Oct 18', status: 'Completed' },
-        { label: 'Wallet top-up', amount: '+$2,000', date: 'Oct 10', status: 'Processing' },
-        { label: 'Cycle payout', amount: '+$3,200', date: 'Sep 22', status: 'Success' },
-      ];
+  const ledger = Array.isArray(ledgerEntries) ? ledgerEntries : [];
 
   const walletTotals = walletsData.reduce(
     (acc, wallet) => {
@@ -358,30 +344,39 @@ function Dashboard({ user, overview }) {
                 </p>
               </div>
             </div>
-            <ul className="mt-5 space-y-3 max-h-80 overflow-y-auto pr-1">
-              {ledger.map((entry, index) => (
-                <li key={`${entry.label ?? entry.description}-${entry.date ?? index}`} className="flex items-center justify-between rounded-2xl border border-line/60 bg-night-1/50 p-3 text-sm">
-                  <div>
-                    <p className="font-semibold text-text-primary">{entry.label ?? entry.description ?? 'Entry'}</p>
-                    <p className="text-xs text-text-muted">{entry.date ?? entry.createdAt ?? ''}</p>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className={`font-semibold ${
-                        (entry.amount ?? '').toString().trim().startsWith('+') || entry.direction === 'CREDIT'
-                          ? 'text-accent-tech'
-                          : 'text-text-secondary'
-                      }`}
-                    >
-                      {typeof entry.amount === 'number'
-                        ? formatCurrency(entry.amount, entry.currency ?? preferredCurrency)
-                        : entry.amount ?? '—'}
-                    </p>
-                    <p className="text-xs text-text-muted">{entry.status ?? entry.type}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {ledger.length ? (
+              <ul className="mt-5 space-y-3 max-h-80 overflow-y-auto pr-1">
+                {ledger.map((entry, index) => (
+                  <li
+                    key={`${entry.id ?? entry.label ?? entry.description}-${entry.date ?? entry.createdAt ?? index}`}
+                    className="flex items-center justify-between rounded-2xl border border-line/60 bg-night-1/50 p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-semibold text-text-primary">{entry.label ?? entry.description ?? 'Entry'}</p>
+                      <p className="text-xs text-text-muted">{entry.date ?? entry.createdAt ?? ''}</p>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`font-semibold ${
+                          (entry.amount ?? '').toString().trim().startsWith('+') || entry.direction === 'CREDIT'
+                            ? 'text-accent-tech'
+                            : 'text-text-secondary'
+                        }`}
+                      >
+                        {typeof entry.amount === 'number'
+                          ? formatCurrency(entry.amount, entry.currency ?? preferredCurrency)
+                          : entry.amount ?? '—'}
+                      </p>
+                      <p className="text-xs text-text-muted">{entry.status ?? entry.type ?? 'Status unknown'}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-sm text-text-secondary">
+                No ledger entries yet. Activity will appear here once transactions post.
+              </p>
+            )}
           </article>
         </section>
         <RecordContributionModal

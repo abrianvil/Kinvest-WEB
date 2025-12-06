@@ -246,6 +246,10 @@ function GroupDetailPage({ user, groupId }) {
   const frequencyLabel = formatEnumLabel(group?.frequency);
   const rotationLabel = formatEnumLabel(group?.rotationStrategy);
   const memberCount = group?.members?.length ?? 0;
+  const autoPayoutEnabled = group?.autoPayoutEnabled ?? true;
+  const payoutHelper = autoPayoutEnabled
+    ? `Freq: ${frequencyLabel} • Auto payout on`
+    : `Freq: ${frequencyLabel} • Auto payout off`;
   const monthlyPayout = useMemo(() => {
     if (Array.isArray(group?.insights?.payoutsByMonth) && group.insights.payoutsByMonth.length) {
       return group.insights.payoutsByMonth[0].total;
@@ -258,14 +262,30 @@ function GroupDetailPage({ user, groupId }) {
     return base * participantCount;
   }, [group?.insights?.payoutsByMonth, cycles, group?.contributionAmount, memberCount, group?.slotCount]);
 
+  const currentCycle = useMemo(() => {
+    if (group?.insights?.currentCycle) {
+      return group.insights.currentCycle;
+    }
+    if (!cycles.length) return null;
+    return cycles.find((cycle) => cycle.status !== 'PAID_OUT') ?? cycles[cycles.length - 1];
+  }, [group, cycles]);
+
   const nextCycle = useMemo(() => {
     if (group?.insights?.nextCycle) {
       return group.insights.nextCycle;
     }
     if (!cycles.length) return null;
+    if (currentCycle) {
+      const currentIndex = cycles.findIndex((cycle) => cycle.id === currentCycle.id);
+      const upcoming = cycles
+        .slice(currentIndex >= 0 ? currentIndex + 1 : 0)
+        .find((cycle) => cycle.status !== 'PAID_OUT');
+      if (upcoming) return upcoming;
+    }
     const firstPending = cycles.find((cycle) => cycle.status !== 'PAID_OUT');
     return firstPending ?? cycles[cycles.length - 1];
-  }, [group, cycles]);
+  }, [group, cycles, currentCycle]);
+
 
   const nextCycleReceiver = useMemo(() => {
     if (!nextCycle) return 'TBD';
@@ -279,14 +299,17 @@ function GroupDetailPage({ user, groupId }) {
     );
   }, [nextCycle, memberLookup]);
 
-  const nextCycleFullyPaid = useMemo(() => {
-    if (!nextCycle?.participants?.length) return false;
-    return nextCycle.participants.every((participant) => {
+  const currentCycleFullyPaid = useMemo(() => {
+    if (!currentCycle?.participants?.length) return false;
+    return currentCycle.participants.every((participant) => {
       const paid = participant.amountPaid ?? 0;
       const expected = participant.amountExpected ?? 0;
       return expected > 0 && paid >= expected;
     });
-  }, [nextCycle]);
+  }, [currentCycle]);
+
+  const currentCycleNumber = currentCycle?.number ?? currentCycle?.cycleNumber ?? null;
+  const nextCycleNumber = nextCycle?.number ?? nextCycle?.cycleNumber ?? null;
 
   return (
     <>
@@ -355,9 +378,9 @@ function GroupDetailPage({ user, groupId }) {
 
         <section className="grid gap-4 md:grid-cols-4">
           <StatCard
-            label="Monthly payout"
+            label="payout"
             value={formatCurrency(monthlyPayout, group?.currency ?? 'USD')}
-            helper={`Frequency: ${frequencyLabel}`}
+            helper={payoutHelper}
           />
           <StatCard
             label="Members"
@@ -366,13 +389,25 @@ function GroupDetailPage({ user, groupId }) {
           />
           <StatCard
             label="Next cycle"
-            value={nextCycle ? `Cycle ${nextCycle.number ?? '—'}` : 'Pending'}
+            value={nextCycle ? `Cycle ${nextCycleNumber ?? '—'}` : 'Pending'}
             helper={`${nextCycleReceiver} • ${formatDate(nextCycle?.scheduledDate)}`}
           />
           <StatCard
             label="Contributions"
-            value={nextCycleFullyPaid ? 'All paid' : 'Pending'}
-            helper={nextCycleFullyPaid ? 'Everyone contributed' : 'Awaiting payments'}
+            value={
+              currentCycle
+                ? currentCycleFullyPaid
+                  ? 'All paid'
+                  : 'Pending'
+                : 'No active cycle'
+            }
+            helper={
+              currentCycle
+                ? `${
+                    currentCycleNumber ? `Cycle ${currentCycleNumber}` : 'Current cycle'
+                  } • ${currentCycleFullyPaid ? 'Everyone contributed' : 'Awaiting payments'}`
+                : 'Waiting for the current cycle to start'
+            }
           />
         </section>
 

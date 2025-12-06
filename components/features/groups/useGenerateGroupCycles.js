@@ -1,11 +1,13 @@
 import { useAuth } from '@clerk/nextjs';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchFromApi } from '../../../lib/apiClient';
+import { groupDetailsQueryKey } from './useGroupDetails';
 
 const TEMPLATE = process.env.NEXT_PUBLIC_CLERK_JWT_TEMPLATE ?? undefined;
 
 export function useGenerateGroupCycles() {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ groupId, startDate, iterations, receiverOrder }) => {
@@ -27,6 +29,14 @@ export function useGenerateGroupCycles() {
         method: 'POST',
         body: payload,
       });
+    },
+    onSuccess: (_data, variables) => {
+      const groupId = variables?.groupId ?? null;
+      queryClient.invalidateQueries({ queryKey: ['groups'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'], exact: false });
+      if (groupId) {
+        queryClient.invalidateQueries({ queryKey: groupDetailsQueryKey(groupId), exact: false });
+      }
     },
   });
 }

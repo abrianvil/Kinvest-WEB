@@ -62,6 +62,7 @@ const normalizeGroupDetails = (group) => {
     frequency: group.frequency ?? group.template?.frequency ?? 'MONTHLY',
     rotationStrategy: group.rotationStrategy ?? group.template?.rotationStrategy ?? 'FIXED_ORDER',
     slotCount: group.slotCount ?? group.template?.slotCount ?? 0,
+    autoPayoutEnabled: group.autoPayoutEnabled ?? true,
     lateFeePercent: toNumber(group.lateFeePercent),
     gracePeriodDays: group.gracePeriodDays ?? null,
     template: group.template ?? null,

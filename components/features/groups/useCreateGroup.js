@@ -24,6 +24,7 @@ export function useCreateGroup() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'], exact: false });
     },
   });
 }
