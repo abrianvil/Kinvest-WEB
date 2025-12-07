@@ -58,12 +58,12 @@ function GroupsPage({ user }) {
       <Head>
         <title>Groups • Kinvest</title>
       </Head>
-      <AppLayout user={user}>
+      <AppLayout user={user} headerTitle="Groups">
         <div className="space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-line/70 bg-night-2/40 px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line/70 bg-night-2/70 px-5 py-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Groups</p>
-              <h1 className="text-3xl font-semibold text-text-primary">Collectives</h1>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Groups</p>
+              <h1 className="text-[26px] font-semibold leading-tight text-text-primary">Collectives</h1>
               <p className="text-sm text-text-secondary">Create circles, then invite members when you are ready.</p>
             </div>
             <button
@@ -77,20 +77,20 @@ function GroupsPage({ user }) {
                   },
                 })
               }
-              className="inline-flex items-center gap-2 rounded-full border border-accent-tech px-4 py-2 text-sm font-semibold text-accent-tech transition hover:text-accent-tech-dim"
-            >
-              <PlusIcon className="h-4 w-4" />
-              New group
-            </button>
-          </div>
+                      className="inline-flex items-center gap-2 rounded-md bg-warm-1 px-4 py-2 text-sm font-semibold text-night-0 transition hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                      New group
+                    </button>
+                  </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <section className="space-y-4 rounded-3xl border border-line/70 bg-night-2/40 p-5 backdrop-blur">
+            <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
               <header className="space-y-1">
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
+                <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">
                   Groups workspace
                 </p>
-                <h2 className="text-3xl font-semibold text-text-primary">
+                <h2 className="text-[22px] font-semibold text-text-primary">
                   Invite collaborators
                 </h2>
                 <p className="text-sm text-text-secondary">
@@ -135,7 +135,7 @@ function GroupsPage({ user }) {
                   <InvitePanel groupId={selectedGroupId || null} />
                 </>
               ) : (
-                <div className="rounded-2xl border border-line/60 bg-night-1/40 p-4 text-sm">
+                <div className="rounded-xl border border-line/70 bg-night-3/80 p-4 text-sm">
                   <p className="text-text-secondary">
                     Select a group to start inviting members, or create a new collective first.
                   </p>
@@ -143,7 +143,7 @@ function GroupsPage({ user }) {
                     <button
                       type="button"
                       onClick={() => setIsInvitePanelOpen(true)}
-                      className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary hover:border-accent-tech hover:text-accent-tech"
+                      className="rounded-md border border-line px-3 py-1 text-xs text-text-secondary hover:border-warm-2 hover:text-warm-light"
                     >
                       Choose group
                     </button>
@@ -158,7 +158,7 @@ function GroupsPage({ user }) {
                           },
                         })
                       }
-                      className="inline-flex items-center gap-2 rounded-full border border-accent-tech px-3 py-1 text-xs font-semibold text-accent-tech hover:text-accent-tech-dim"
+                      className="inline-flex items-center gap-2 rounded-md bg-warm-1 px-3 py-1 text-xs font-semibold text-night-0 hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1"
                     >
                       <PlusIcon className="h-4 w-4" />
                       New group
@@ -168,47 +168,48 @@ function GroupsPage({ user }) {
               )}
             </section>
 
-            <section className="space-y-4 rounded-3xl border border-line/70 bg-night-2/40 p-5 backdrop-blur">
+            <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
               <header className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
+                  <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">
                     Your groups
                   </p>
-                  <h3 className="text-2xl font-semibold text-text-primary">
+                  <h3 className="text-[22px] font-semibold text-text-primary">
                     Active memberships
                   </h3>
                 </div>
-                <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+                <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
                   {activeGroups.length} total
                 </span>
               </header>
               <div className="max-h-[520px] space-y-3 overflow-y-auto pr-1">
                 {activeGroups.length ? (
-                  activeGroups.map((group) => (
+                  activeGroups.map((group, index) => (
                     <div
                       key={group.id}
-                      className="flex items-center justify-between rounded-2xl border border-line/70 bg-night-1/50 p-4"
+                      className={`flex items-center justify-between rounded-xl border border-line/70 p-4 ${
+                        index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+                      }`}
                     >
                       <div>
                         <p className="text-sm font-semibold text-text-primary">
                           {group.name ?? 'Untitled group'}
                         </p>
-                        <p className="text-xs text-text-secondary">
-                          {group.role ?? group.membershipRole ?? 'MEMBER'} •{' '}
-                          {group.memberCount ?? group.members?.length ?? '—'} members
+                        <p className="text-[12px] text-text-secondary">
+                          {group.role ?? group.membershipRole ?? 'MEMBER'} • {group.memberCount ?? group.members?.length ?? '—'} members
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
                           onClick={() => selectGroup(group.id)}
-                          className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary transition hover:border-accent-tech hover:text-accent-tech"
+                          className="rounded-md border border-line px-3 py-1 text-xs text-text-secondary transition hover:border-warm-2 hover:text-warm-light"
                         >
                           Manage invites
                         </button>
                         <Link
                           href={`/groups/${group.id}`}
-                          className="rounded-full border border-accent-tech px-3 py-1 text-xs font-semibold text-accent-tech transition hover:text-accent-tech-dim"
+                          className="rounded-md bg-warm-1 px-3 py-1 text-xs font-semibold text-night-0 transition hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1"
                         >
                           View detail
                         </Link>

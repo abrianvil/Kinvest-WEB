@@ -8,6 +8,7 @@ import { formatCurrency } from '../utils/formatters';
 function WalletsPage({ user }) {
   const walletsQuery = useWallets();
   const wallets = walletsQuery.data ?? [];
+  const walletMeta = wallets.length ? `${wallets.length} wallet${wallets.length === 1 ? '' : 's'}` : null;
   const [activeWalletId, setActiveWalletId] = useState('');
   const [currencyInput, setCurrencyInput] = useState('USD');
   const [createError, setCreateError] = useState('');
@@ -51,14 +52,14 @@ function WalletsPage({ user }) {
       <Head>
         <title>Wallets • Kinvest</title>
       </Head>
-      <AppLayout user={user}>
+      <AppLayout user={user} headerTitle="Wallets" headerMeta={walletMeta}>
         <div className="space-y-5">
-          <section className="rounded-3xl border border-line/80 bg-night-2/50 p-8 backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.5em] text-text-muted">Wallets</p>
+          <section className="rounded-2xl border border-line/70 bg-night-2/70 p-6 backdrop-blur">
+            <p className="text-[11px] uppercase tracking-[0.45em] text-text-muted">Wallets</p>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="mt-2 text-3xl font-semibold text-text-primary">Unified ledger</h2>
-                <p className="text-text-secondary">
+                <h2 className="mt-1 text-[26px] font-semibold leading-tight text-text-primary">Unified ledger</h2>
+                <p className="text-sm text-text-secondary">
                   Track personal and collective balances, plus settlement entries.
                 </p>
               </div>
@@ -67,16 +68,16 @@ function WalletsPage({ user }) {
                   value={currencyInput}
                   onChange={(event) => setCurrencyInput(event.target.value.toUpperCase())}
                   maxLength={3}
-                  className="w-20 rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-sm text-text-primary focus:border-accent-tech focus:outline-none"
+                  className="w-20 rounded-lg border border-line bg-night-3/70 px-3 py-2 text-sm text-text-primary focus:border-accent-tech-dim focus:outline-none"
                   aria-label="Wallet currency"
                 />
                 <button
                   type="submit"
                   disabled={createWallet.isPending}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
                     createWallet.isPending
                       ? 'cursor-not-allowed border-line text-text-muted'
-                      : 'border-accent-tech text-accent-tech hover:text-accent-tech-dim'
+                      : 'bg-warm-1 text-night-0 hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1'
                   }`}
                 >
                   {createWallet.isPending ? 'Creating…' : 'New wallet'}
@@ -89,13 +90,13 @@ function WalletsPage({ user }) {
           </section>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,0.45fr)_minmax(0,0.55fr)]">
-            <section className="space-y-3 rounded-3xl border border-line/80 bg-night-2/50 p-5 backdrop-blur">
+            <section className="space-y-3 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Wallets</p>
-                  <h3 className="text-2xl font-semibold text-text-primary">Balances</h3>
+                  <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Wallets</p>
+                  <h3 className="text-[22px] font-semibold text-text-primary">Balances</h3>
                 </div>
-                <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+                <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
                   {wallets.length} total
                 </span>
               </div>
@@ -107,16 +108,16 @@ function WalletsPage({ user }) {
                     key={wallet.id}
                     type="button"
                     onClick={() => setActiveWalletId(wallet.id)}
-                    className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
+                    className={`w-full rounded-xl border px-4 py-3 text-left transition ${
                       wallet.id === activeWallet?.id
-                        ? 'border-accent-tech/70 bg-accent-tech/10'
-                        : 'border-line/60 bg-night-1/40 hover:border-accent-tech/60'
+                        ? 'border-warm-2 bg-night-3/80'
+                        : 'border-line/60 bg-night-3/60 hover:border-line/80 hover:bg-night-3/70'
                     }`}
                   >
                     <p className="text-sm font-semibold text-text-primary">
                       {wallet.currency} wallet
                     </p>
-                    <p className="text-xs text-text-muted">Status: {wallet.status}</p>
+                    <p className="text-[12px] text-text-muted">Status: {wallet.status}</p>
                     <div className="mt-2 text-sm text-text-secondary">
                       <p>Available: {formatCurrency(wallet.availableBalance, wallet.currency)}</p>
                       <p>Pending: {formatCurrency(wallet.pendingBalance, wallet.currency)}</p>
@@ -130,15 +131,15 @@ function WalletsPage({ user }) {
               )}
             </section>
 
-            <section className="space-y-3 rounded-3xl border border-line/80 bg-night-2/50 p-5 backdrop-blur">
+            <section className="space-y-3 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Transactions</p>
-                  <h3 className="text-2xl font-semibold text-text-primary">
+                  <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Transactions</p>
+                  <h3 className="text-[22px] font-semibold text-text-primary">
                     {activeWallet ? `${activeWallet.currency} ledger` : 'Select a wallet'}
                   </h3>
                 </div>
-                <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+                <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
                   {transactionsQuery.data?.transactions?.length ?? 0} entries
                 </span>
               </div>
@@ -146,29 +147,31 @@ function WalletsPage({ user }) {
                 <p className="text-sm text-text-secondary">Loading transactions…</p>
               ) : transactionsQuery.data?.transactions?.length ? (
                 <ul className="space-y-3 max-h-[480px] overflow-y-auto pr-2">
-                  {transactionsQuery.data.transactions.map((entry) => (
+                  {transactionsQuery.data.transactions.map((entry, index) => (
                     <li
                       key={entry.id}
-                      className="flex items-center justify-between rounded-2xl border border-line/60 bg-night-1/40 px-4 py-3 text-sm"
+                      className={`flex items-center justify-between rounded-xl border border-line/70 px-4 py-3 text-sm ${
+                        index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+                      }`}
                     >
                       <div>
                         <p className="font-semibold text-text-primary">
                           {entry.type ?? 'Entry'}
                         </p>
-                        <p className="text-xs text-text-muted">
+                        <p className="text-[12px] text-text-muted">
                           {new Date(entry.createdAt ?? Date.now()).toLocaleString()}
                         </p>
                       </div>
                       <div className="text-right">
                         <p
-                          className={`font-semibold ${
+                          className={`font-semibold tracking-[0.02em] ${
                             entry.direction === 'CREDIT' ? 'text-accent-tech' : 'text-text-secondary'
                           }`}
                         >
                           {entry.direction === 'DEBIT' ? '-' : '+'}
                           {formatCurrency(entry.amount, entry.currency ?? activeWallet?.currency ?? 'USD')}
                         </p>
-                        <p className="text-xs text-text-muted">{entry.status}</p>
+                        <p className="text-[12px] text-text-muted">{entry.status}</p>
                       </div>
                     </li>
                   ))}

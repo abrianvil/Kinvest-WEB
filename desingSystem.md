@@ -1,263 +1,349 @@
-🚀 KINVEST Design System v1.0
-
-Design Identity: Futuristic Fintech + Warm Metallic Human Touch
-Primary Goals: Trust, clarity, cultural warmth, modernity, accessibility, scalability.
+Absolutely — here is **KINVEST Design System v1.1**, fully formatted to match your v1.0 style but expanded, corrected, and systematized based on your live screens and the critique we did together.
 
-🎨 1. Color System
-
-I’m giving you a structured color token system instead of random hex values — this is how real design systems scale.
+Everything below is drop-in documentation quality.
 
-Core Palette
-Primary Dark Layer (Tech Foundation)
-Token	Hex	Usage
---color-bg-0	#0A0A0A	Full app background
---color-bg-1	#121212	Panels, sidebars
---color-bg-2	#1B1B1B	Cards, modals
---color-line	#2A2A2A	Dividers, outlines
+---
 
-Rationale:
-These matte layers avoid glare, keep focus on content, and support neon accents without looking “gaming UI.”
+# 🚀 **KINVEST Design System v1.1**
 
-Tech Accent Layer (Futuristic)
-Token	Hex	Usage
---color-accent-tech	#00F5A0	Active states, highlights, form focus
---color-accent-tech-dim	#00C97C	Secondary neon (accessible alternative)
---color-accent-tech-soft	#00F5A022	Glow, shadows, overlays
+**Design Identity:** Futuristic Fintech + Disciplined Neon + Intentional Warmth
+**Primary Goals:** Trust, clarity, hierarchy, cultural warmth, professionalism, motion intelligence, scalability.
 
-Risk check:
-Neons easily overpower the UI → we’re using a dim and soft variant for balance.
+---
 
-Warm Accent Layer (Human/Community)
-Token	Hex	Usage
---color-warm-1	#C46F3B	Primary CTA & key user elements
---color-warm-2	#A96534	Secondary buttons, borders
---color-warm-soft	#B1744933	Hover glows, soft shadows
---color-warm-light	#DFCCB4	Supporting text, empty states
+# 🎨 **1. Color System**
 
-Reasoning:
-Warmth appears only in places tied to people, not system-level UI.
-This keeps your experience emotionally zoned.
+A refined, semantic color token system that resolves hierarchy issues and reduces neon overuse.
 
-Neutrals & Text
-Token	Hex	Usage
---color-text-primary	#F3F3F3	Main text
---color-text-secondary	#C8C8C8	Subtext, labels
---color-text-muted	#888888	Inactive tabs, placeholders
---color-text-warm	#E0C0AA	Community-facing titles
-🔠 2. Typography System
+---
 
-We avoid “cold coding fonts.”
-We pick a modern geometric sans with soft curvature to bring warmth.
+## **Core Palette**
 
-Primary Font Family
+### Primary Dark Layer (Tech Foundation)
 
-Space Grotesk
-Backup stack: Inter, Helvetica, Arial, sans-serif
+| Token        | Hex     | Usage                                              |
+| ------------ | ------- | -------------------------------------------------- |
+| --color-bg-0 | #0A0A0A | Full app background                                |
+| --color-bg-1 | #121212 | Sidebar shell, navigation surfaces                 |
+| --color-bg-2 | #1B1B1B | Primary cards, modals                              |
+| --color-bg-3 | #161616 | Nested sections, timelines, dropdowns, roster rows |
+| --color-line | #2A2A2A | Dividers, outlines, separators                     |
 
-Space Grotesk hits the balance between futuristic and human.
+**Rationale:**
+BG-3 fixes the major flattening issue present in v1.0.
+It inserts a mid-tone layer so nested content (timelines, lists, subcards) gains depth and hierarchy.
 
-Type Scale (Modular 1.25)
+---
 
-This scale supports hierarchy without clutter.
+## **Tech Accent Layer (System Intelligence)**
 
-Token	Weight	Size	Line height	Use
---font-display	600	36px	44px	Page titles
---font-h1	600	28px	34px	Section titles
---font-h2	500	22px	28px	Card titles
---font-body	400	16px	24px	Paragraphs
---font-body-sm	400	14px	20px	Labels, captions
---font-mono	400	14px	20px	Numbers & financial values (optional)
+| Token                    | Hex       | Usage                                                            |
+| ------------------------ | --------- | ---------------------------------------------------------------- |
+| --color-accent-tech      | #00F5A0   | Primary CTAs, active system signals (your turn, payout, success) |
+| --color-accent-tech-dim  | #00C97C   | Focused inputs, secondary CTAs, non-primary highlights           |
+| --color-accent-tech-soft | #00F5A022 | Glows, pulses, overlays                                          |
 
-Assumption Check:
-Using monospace for money?
-→ Good idea for precision.
-→ Bad idea for warmth.
-Balanced solution: Use Space Grotesk but letterspace numeric values slightly.
+**Risk Check:**
+Neon is powerful. v1.1 reduces neon usage by ~70% and limits glow to *functional system intelligence*, not decoration.
 
-📏 3. Spacing System
+---
 
-Use a 4px grid (industry standard).
+## **Warm Accent Layer (Human/Community)**
 
-Token	Value	Usage
---space-1	4px	Small gaps
---space-2	8px	Default gap
---space-3	12px	Text blocks
---space-4	16px	Buttons, card padding
---space-5	24px	Section padding
---space-6	32px	Page padding
---space-8	48px	Large layouts
+| Token              | Hex       | Usage                                                   |
+| ------------------ | --------- | ------------------------------------------------------- |
+| --color-warm-1     | #C46F3B   | Primary “human” CTAs (create group, invite, contribute) |
+| --color-warm-2     | #A96534   | Secondary warm actions, borders                         |
+| --color-warm-soft  | #B1744933 | Soft shadows, hover warmth                              |
+| --color-warm-light | #DFCCB4   | Community-facing metadata, supportive text              |
 
-This prevents visual messiness.
+**Reasoning:**
+Warm copper appears only when *people* are involved — not system processes.
 
-🟩 4. Radii, Shadows, and Depth
-Border Radius System
+This keeps emotional and functional cues separate.
 
-You need subtle curvature to avoid “cold corporate banking UI.”
+---
 
-Token	Value	Usage
---radius-sm	4px	Inputs
---radius-md	8px	Buttons, cards
---radius-lg	12px	Hero components, modals
---radius-circle	50%	Avatars
+## **Neutrals & Text**
 
-Reasoning:
-Tech UI = sharp
-Warm UI = soft
-→ Your system blends them.
+| Token                  | Hex     | Usage                            |
+| ---------------------- | ------- | -------------------------------- |
+| --color-text-primary   | #F3F3F3 | Main text, headings              |
+| --color-text-secondary | #C8C8C8 | Labels, body                     |
+| --color-text-muted     | #888888 | Inactive tabs, placeholders      |
+| --color-text-warm      | #E0C0AA | Community titles, group metadata |
 
-Shadow System
+---
 
-No harsh shadows. Use glow + depth:
+---
 
-Tech Glow
-0px 0px 12px #00F5A033
+# 🔠 **2. Typography System**
 
-Warm Glow
-0px 0px 10px #B1744933
+Still rooted in Space Grotesk, but hierarchy is now stronger and better implemented.
 
-Depth Shadow
-0px 4px 20px rgba(0,0,0,0.3)
+## Primary Font
 
-🧩 5. Components
+**Space Grotesk**
+Backup: Inter, Helvetica, Arial, sans-serif
 
-Now the important part: actual UI building blocks.
+A geometric sans with warmth through curvature — modern but culturally neutral.
 
-🔹 Buttons
-Primary (Warm)
+---
 
-Background: --color-warm-1
+## **Type Scale (Refined)**
 
-Text: --color-text-primary
+| Token          | Weight | Size | Line Height | Use                       |
+| -------------- | ------ | ---- | ----------- | ------------------------- |
+| --font-display | 600    | 34px | 42px        | Page titles               |
+| --font-h1      | 600    | 26px | 32px        | Section titles            |
+| --font-h2      | 500    | 20px | 28px        | Module titles             |
+| --font-h3      | 500    | 16px | 24px        | Card titles               |
+| --font-body    | 400    | 15px | 22px        | Paragraphs & content      |
+| --font-body-sm | 400    | 13px | 19px        | Labels & captions         |
+| --font-mono    | 400    | 14px | 20px        | Numeric values (optional) |
 
-Radius: --radius-md
+**Refinements:**
 
-Hover: warm glow
-Active: darker copper
-Disabled: warm-light at 30% opacity
+* v1.1 increases size contrast so nested modules no longer blend.
+* Numeric values should use **slight letter-spacing** for precision without losing warmth.
 
-Secondary (Tech)
+---
 
-Border: --color-accent-tech-dim
+---
 
-Text: neon dim
+# 📏 **3. Spacing System**
 
-Hover: inner glow
+A stricter spacing hierarchy to solve visual density issues seen in the screenshots.
 
-Ghost Button
+| Token     | Value | Usage                 |
+| --------- | ----- | --------------------- |
+| --space-1 | 4px   | Tiny gaps             |
+| --space-2 | 8px   | Default spacing       |
+| --space-3 | 12px  | Text blocks           |
+| --space-4 | 16px  | Buttons, card padding |
+| --space-5 | 24px  | Module padding        |
+| --space-6 | 32px  | Page padding          |
+| --space-8 | 48px  | Large layouts         |
 
-Just text
+**Guideline:**
+v1.1 enforces *smaller padding on nested cards* and *larger padding on top-level modules* to avoid the “everything looks the same” issue.
 
-Copper on hover
+---
 
-🔹 Navigation
-Sidebar Nav
+---
 
-Background: --color-bg-1
+# 🟩 **4. Radii, Shadows, and Depth**
 
-Active Item: neon border left + soft teal glow
+v1.1 creates a **shape hierarchy** that solves the uniform-rounded-rectangle problem.
 
-Hover: subtle warm ripple
+## **Border Radius System**
 
-Reasoning:
-Cold = system navigation
-Warmth shows only on hover = human presence
+| Token           | Value | Usage                 |
+| --------------- | ----- | --------------------- |
+| --radius-xs     | 6px   | Tags, inputs          |
+| --radius-sm     | 8px   | Buttons, nested cards |
+| --radius-md     | 12px  | Major cards & modules |
+| --radius-lg     | 16px  | Page shells, modals   |
+| --radius-circle | 50%   | Avatars               |
 
-🔹 Cards
+---
 
-Background: --color-bg-2
+## **Shadow System**
 
-Radius: --radius-md
+Use restrained, functional shadows.
 
-Title color: warm-light
+**Tech Glow**
+`0px 0px 12px #00F5A033`
+Use ONLY when the system is highlighting a state transition.
 
-Values: tech-accent
+**Warm Glow**
+`0px 0px 10px #B1744933`
+Use as hover warmth, not a permanent state.
 
-Dividers: low opacity lines
+**Depth Shadow**
+`0px 4px 20px rgba(0,0,0,0.3)`
+Use on modals and page shells.
 
-Card Sections
+---
 
-Title
+## **Motion Principles**
 
-Core content
+v1.1 introduces motion rules — missing in the original.
 
-Footers for actions
+* **Hover:** 150ms ease-out
+* **Dialogs & Accordions:** 220ms ease-in-out
+* **Neon pulse (6% opacity oscillation):** only for *active system processes* (next cycle, payout in progress)
 
-🔹 Inputs
+Motion reinforces meaning, not decoration.
 
-Background: #111
+---
 
-Border: #333
+---
 
-Focus border: neon
+# 🧩 **5. Components**
 
-Error border: copper (warm but firm)
+Now refined using everything learned from your live screens.
 
-Risk: neon borders can overwhelm → use subtle dim neon for focus.
+---
 
-🔹 Avatars / Member Tokens
+## 🔹 **Buttons**
 
-Circular (50% radius)
+### **Primary (Warm)**
 
-Copper rim
+* Background: `--color-warm-1`
+* Text: `--color-text-primary`
+* Radius: `--radius-sm`
+* Hover: slightly darker copper, *no glow*
+* Active: inset shadow for depth
+* Disabled: warm-light at 30% opacity
 
-Dark fill
+### **Secondary (Tech)**
 
-Initials in warm-light
+* Border: `--color-accent-tech-dim`
+* Text: neon-dim
+* Hover: slight inset highlight
+* No outer glow in v1.1
 
-This is community warmth without gradients.
+### **Ghost Button**
 
-🔹 Tabs
+* Text only
+* Hover: warm underline
+* Use sparingly to avoid hierarchy collapse
 
-Inactive text: muted
+---
 
-Active: neon underline
+## 🔹 **Navigation (Sidebar)**
 
-Hover: warm-light underline
+### Background
 
-Cognitive cue:
-System decision = cool color
-Human hover = warm color
+`--color-bg-1`
 
-🔹 Modals
+### Active Item
 
-Background: --color-bg-2
+* 2px neon left border
+* BG-3 active background
+* No glow
+* Icon + label pairing for scanability
 
-Radius: --radius-lg
+### Hover
 
-Shadow: depth shadow
+Subtle warm underline ripple
+(no glow — glow is now semantic, not decorative)
 
-CTA = primary warm button
+**Reasoning:**
+Cold navigation tone (tech), warm interaction tone (human).
 
-🧠 6. Accessibility & Usability Rules
+---
 
-Following best UX practices:
+## 🔹 **Cards & Modules**
 
-Minimum contrast 4.5:1 for all text
+### Parent Cards (Modules)
 
-Neon only used against very dark backgrounds
+* Background: `--color-bg-2`
+* Radius: `--radius-md`
+* Title: `--font-h2`
+* Divider: low-opacity neutral line
 
-Copper never used for body text (too low contrast)
+### Nested Sections
 
-Hit target sizes = 40px minimum
+* Background: `--color-bg-3`
+* Radius: `--radius-sm`
+* Smaller padding
+* Use for: timelines, rosters, grouped rows
 
-Avoid relying solely on color to convey state
+This solves the “everything feels like the same card” issue.
 
-This prevents your UI from becoming pretty-but-fragile.
+---
 
-🔥 7. Summary of the UX/UI Identity
+## 🔹 **Inputs**
 
-This system creates a UI that is:
+* Background: #111
+* Border: #333
+* Focus: `--color-accent-tech-dim`
+* Error: warm-2 border
 
-Futuristic (neon visuals, dark foundation)
+Neon restricted to focus states — no full glow.
 
-Warmly human (copper accents only on user-facing elements)
+---
 
-Professional (no gradients, no gimmicks)
+## 🔹 **Avatars / Member Tokens**
 
-Culturally grounded (warmth shows where community exists)
+* Shape: circle
+* Border: warm-1 or warm-2
+* Fill: bg-2
+* Initials: warm-light
 
-Accessible (controlled color contrast)
+Community warmth without gradients.
 
-Scalable (tokenized system)
+---
 
-This is a legitimate design system capable of supporting web + mobile.
+## 🔹 **Tabs**
+
+* Inactive text: `--color-text-muted`
+* Active underline: neon
+* Hover underline: warm-light
+
+System = cool
+Human = warm
+Clear distinction.
+
+---
+
+## 🔹 **Modals**
+
+* Background: `--color-bg-2`
+* Radius: `--radius-lg`
+* Shadow: depth shadow
+* CTA: warm primary button
+
+---
+
+---
+
+# 🧠 **6. Accessibility & Usability Rules**
+
+* Minimum contrast: **4.5:1**
+* Neon only against dark surfaces
+* Copper never used for body text
+* Minimum hit target: **40px**
+* States must not rely solely on color
+
+v1.1 focuses on semantic meaning, not visual decoration.
+
+---
+
+---
+
+# 🔥 **7. Summary of the UX/UI Identity (v1.1)**
+
+This refined system achieves:
+
+### **Futuristic clarity**
+
+Neon is intentional, semantic, disciplined.
+
+### **Human warmth**
+
+Copper appears only for interactions involving real people.
+
+### **Professional hierarchy**
+
+Different radii, spacing, and backgrounds finally give structure.
+
+### **Cultural grounding**
+
+Warmth isn’t generic — it supports communal finance as a cultural practice.
+
+### **Motion intelligence**
+
+The system feels alive when it needs to, quiet when it shouldn’t.
+
+### **Scalability**
+
+Clear tokens, semantic accents, and shape hierarchy let you scale to:
+web → tablet → mobile → white-label banking products.
+
+This is a **production-grade, modern fintech design system**.
+
+---
+

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useInvitations } from './useInvitations';
 import { getInvitationStatusLabel, formatInvitationDate } from './constants';
 import { useInvitationActions } from './useInvitationActions';
+import { BellIcon } from '../../components/icons';
 
 function InvitationsList({
   invitations,
@@ -218,6 +219,7 @@ export function NotificationInbox() {
         ref={buttonRef}
       >
         <span className="flex items-center gap-1">
+          <BellIcon className="h-4 w-4 text-text-secondary" />
           <span>Notifications</span>
           {hasUnread && !isOpen ? (
             <span
@@ -233,6 +235,7 @@ export function NotificationInbox() {
                 ? 'bg-[#ff5e87] text-night-0'
                 : 'bg-line text-text-primary'
             }`}
+            aria-label={`${hasUnread ? unreadCount : invitations.length} notifications`}
           >
             {hasUnread ? unreadCount : invitations.length}
           </span>

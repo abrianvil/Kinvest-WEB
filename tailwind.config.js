@@ -13,6 +13,7 @@ module.exports = {
           0: '#0A0A0A',
           1: '#121212',
           2: '#1B1B1B',
+          3: '#161616',
         },
         accent: {
           tech: '#00F5A0',
@@ -46,6 +47,7 @@ module.exports = {
         kinSm: '4px',
         kinMd: '8px',
         kinLg: '12px',
+        kinXs: '6px',
       },
     },
   },
