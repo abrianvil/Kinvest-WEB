@@ -20,3 +20,8 @@
 - Add integration tests or happy-path API tests for proxy/flows; run `npm run lint` and fix warnings.
 - Verify `.env.local` (Clerk keys, `API_URL`/`NEXT_PUBLIC_API_URL`, JWT template) and keep README updated.
 - Strip dev-only console logs before release.
+
+## Documentation & consistency
+- Add a short architecture map (README updated with structure; keep it current as features move).
+- Prefer shared helpers (`utils/formatters`) for dates/currency/enums; avoid redefining per page.
+- Add `components/common/` barrel for shared UI primitives as they are extracted (buttons/modals/inputs).

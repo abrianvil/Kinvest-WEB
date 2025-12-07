@@ -2,9 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import AppLayout from '../components/AppLayout';
-import { InvitePanel } from '../components/features/groups/invite';
-import { useCreateGroupModal } from '../components/features/groups/CreateGroupModalProvider';
+import { AppLayout } from '../components/layouts';
+import { InvitePanel } from '../features/groups/invite';
+import { useCreateGroupModal } from '../features/groups';
 import { PlusIcon } from '../components/icons';
 import { useAuthedApiQuery } from '../hooks/useAuthedApiQuery';
 

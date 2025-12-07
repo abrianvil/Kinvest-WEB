@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { SignedIn, UserButton } from '@clerk/nextjs';
-import { NotificationInbox } from './features/notifications';
+import { NotificationInbox } from '../../features/notifications';
 
 const primaryNav = [
   { href: '/dashboard', label: 'Overview', badge: 'Live' },

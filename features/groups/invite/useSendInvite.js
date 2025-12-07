@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchFromApi } from '../../../../lib/apiClient';
+import { fetchFromApi } from '../../../lib/apiClient';
 import { inviteMutationKey, inviteSearchQueryKey } from './types';
 
 const TEMPLATE = process.env.NEXT_PUBLIC_CLERK_JWT_TEMPLATE ?? undefined;

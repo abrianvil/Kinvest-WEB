@@ -2,49 +2,9 @@ import { useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import AppLayout from '../../components/AppLayout';
-import { useGroupDetails } from '../../components/features/groups/useGroupDetails';
-import RecordContributionModal from '../../components/features/groups/RecordContributionModal';
-
-const formatCurrency = (value, currency = 'USD') => {
-  if (value === null || value === undefined) return '—';
-  try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD',
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch (error) {
-    return `${value} ${currency ?? ''}`.trim();
-  }
-};
-
-const formatDate = (value, { includeTime = false } = {}) => {
-  if (!value) return 'TBD';
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return 'TBD';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    ...(includeTime
-      ? {
-          hour: 'numeric',
-          minute: 'numeric',
-        }
-      : {}),
-  }).format(date);
-};
-
-const formatEnumLabel = (value) => {
-  if (!value) return '—';
-  return value
-    .toString()
-    .toLowerCase()
-    .split('_')
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(' ');
-};
+import { AppLayout } from '../../components/layouts';
+import { useGroupDetails, RecordContributionModal } from '../../features/groups';
+import { formatCurrency, formatDate, formatEnumLabel } from '../../utils/formatters';
 
 function StatCard({ label, value, helper }) {
   return (

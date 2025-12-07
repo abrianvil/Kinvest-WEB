@@ -3,15 +3,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import AppLayout from '../../components/AppLayout';
-import {
-  useInvitations,
-  useInvitationActions,
-} from '../../components/features/notifications';
+import { AppLayout } from '../../components/layouts';
+import { useInvitations, useInvitationActions } from '../../features/notifications';
 import {
   getInvitationStatusLabel,
   formatInvitationDate,
-} from '../../components/features/notifications/constants';
+} from '../../features/notifications/constants';
 
 const formatDateWithFallback = (value) =>
   formatInvitationDate(value, { includeTime: true }) || 'Unknown date';

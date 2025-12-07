@@ -1,21 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import AppLayout from '../components/AppLayout';
-import { useWallets } from '../components/features/wallets/useWallets';
-import { useWalletTransactions } from '../components/features/wallets/useWalletTransactions';
-import { useCreateWallet } from '../components/features/wallets/useCreateWallet';
-
-const formatCurrency = (value, currency = 'USD') => {
-  if (value === null || value === undefined) return '—';
-  const numberValue = typeof value === 'number' ? value : Number(value);
-  if (Number.isNaN(numberValue)) return value;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(numberValue);
-};
+import { AppLayout } from '../components/layouts';
+import { useWallets, useWalletTransactions, useCreateWallet } from '../features/wallets';
+import { formatCurrency } from '../utils/formatters';
 
 function WalletsPage({ user }) {
   const walletsQuery = useWallets();

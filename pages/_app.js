@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, HydrationBoundary } from '@tanstack/r
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import '../styles/globals.css';
 import { useSyncUserProfile } from '../hooks/useSyncUserProfile';
-import { CreateGroupModalProvider } from '../components/features/groups/CreateGroupModalProvider';
+import { CreateGroupModalProvider } from '../features/groups/CreateGroupModalProvider';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],

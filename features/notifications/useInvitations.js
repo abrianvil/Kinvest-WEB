@@ -1,4 +1,4 @@
-import { useAuthedApiQuery } from '../../../hooks/useAuthedApiQuery';
+import { useAuthedApiQuery } from '../../hooks/useAuthedApiQuery';
 
 export const INVITATIONS_QUERY_KEY = ['notifications', 'invitations'];
 export const USER_INVITATIONS_PATH = '/api/users/me/invitations';
