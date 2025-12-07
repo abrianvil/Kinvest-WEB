@@ -3,17 +3,16 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
-import AppLayout from '../components/AppLayout';
-import { useCreateGroupModal } from '../components/features/groups/CreateGroupModalProvider';
+import { AppLayout } from '../components/layouts';
+import { useCreateGroupModal, RecordContributionModal } from '../features/groups';
 import { PlusIcon } from '../components/icons';
-import RecordContributionModal from '../components/features/groups/RecordContributionModal';
 import {
   useDashboardOverviewQuery,
   normalizeOverview,
   fetchDashboardOverview,
   DEFAULT_DASHBOARD_OVERVIEW,
   DASHBOARD_OVERVIEW_QUERY_KEY,
-} from '../components/features/dashboard/queries';
+} from '../features/dashboard';
 
 const TEMPLATE =
   process.env.CLERK_JWT_TEMPLATE ?? process.env.NEXT_PUBLIC_CLERK_JWT_TEMPLATE ?? undefined;
@@ -25,16 +24,7 @@ const extractMemberships = (profilePayload) => {
   return [];
 };
 
-const formatCurrency = (value, currency = 'USD') => {
-  if (value === null || value === undefined) return '—';
-  const numberValue = typeof value === 'number' ? value : Number(value);
-  if (Number.isNaN(numberValue)) return value;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(numberValue);
-};
+import { formatCurrency, formatCycleDate } from '../utils/formatters';
 
 const deriveMemberCount = (group) => {
   if (typeof group?.memberCount === 'number') return group.memberCount;
@@ -45,13 +35,6 @@ const deriveMemberCount = (group) => {
 };
 
 const deriveGroupStatus = (group) => group?.status ?? group?.state ?? 'ACTIVE';
-
-const formatCycleDate = (value) => {
-  if (!value) return null;
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
 
 const deriveNextCycle = (group) => {
   const nextCycle =

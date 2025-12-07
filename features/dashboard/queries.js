@@ -1,5 +1,5 @@
-import { useAuthedApiQuery } from '../../../hooks/useAuthedApiQuery';
-import { fetchFromApi } from '../../../lib/apiClient';
+import { useAuthedApiQuery } from '../../hooks/useAuthedApiQuery';
+import { fetchFromApi } from '../../lib/apiClient';
 
 export const DASHBOARD_OVERVIEW_QUERY_KEY = ['dashboard', 'overview'];
 export const DASHBOARD_OVERVIEW_PATH = '/api/dashboard/overview';

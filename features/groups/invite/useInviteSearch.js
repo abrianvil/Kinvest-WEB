@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useQuery } from '@tanstack/react-query';
-import { fetchFromApi } from '../../../../lib/apiClient';
+import { fetchFromApi } from '../../../lib/apiClient';
 import { useDebounce } from './useDebounce';
 import { inviteSearchQueryKey, MIN_SEARCH_LENGTH } from './types';
 

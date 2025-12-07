@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRecordContribution } from './useRecordContribution';
 
 const DEFAULT_STATE = {
@@ -6,46 +7,25 @@ const DEFAULT_STATE = {
   walletId: '',
 };
 
-export function RecordContributionModal({
-  isOpen,
+function ModalBody({
   onClose,
   groupId,
   cycleOptions = [],
   defaultAmount,
+  selectedCycleIdInitial,
+  amountInitial,
 }) {
-  const [formState, setFormState] = useState(DEFAULT_STATE);
-  const [selectedCycleId, setSelectedCycleId] = useState(cycleOptions[0]?.id ?? '');
+  const [formState, setFormState] = useState({ amount: amountInitial, walletId: '' });
+  const [selectedCycleId, setSelectedCycleId] = useState(selectedCycleIdInitial);
   const [errorMessage, setErrorMessage] = useState('');
   const recordContribution = useRecordContribution();
-
-  useEffect(() => {
-    if (cycleOptions.length) {
-      setSelectedCycleId(cycleOptions[0].id);
-    }
-  }, [cycleOptions]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setFormState(DEFAULT_STATE);
-      setErrorMessage('');
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setFormState((prev) => ({
-        ...prev,
-        amount: defaultAmount ? String(defaultAmount) : prev.amount,
-      }));
-    }
-  }, [isOpen, defaultAmount]);
-
-  if (!isOpen) return null;
 
   const selectedCycle = cycleOptions.find((cycle) => cycle.id === selectedCycleId) || cycleOptions[0];
   const hasContributed = selectedCycle?.hasContributed ?? false;
   const amountValue = Number(formState.amount);
   const amountIsValid = Number.isFinite(amountValue) && amountValue > 0;
+
+  const dialogTitleId = 'record-contribution-title';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -73,12 +53,27 @@ export function RecordContributionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-night-0/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-line/80 bg-night-1/90 p-6">
-        <div className="flex items-center justify-between">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-night-0/70 p-4 py-10 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose?.();
+        }
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={dialogTitleId}
+        className="w-full max-w-lg overflow-hidden rounded-3xl border border-line/80 bg-night-1/95 shadow-techGlow"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-4 md:px-7">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Contribution</p>
-            <h3 className="text-xl font-semibold text-text-primary">Record payment</h3>
+            <h3 id={dialogTitleId} className="text-xl font-semibold text-text-primary">
+              Record payment
+            </h3>
           </div>
           <button
             type="button"
@@ -88,7 +83,10 @@ export function RecordContributionModal({
             Close
           </button>
         </div>
-        <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
+        <form
+          className="max-h-[78vh] space-y-4 overflow-y-auto px-6 pb-6 pr-5 kin-scroll md:px-7 md:pb-7"
+          onSubmit={handleSubmit}
+        >
           {cycleOptions.length ? (
             <label className="space-y-1 text-sm">
               <span className="text-text-secondary">Cycle</span>
@@ -161,6 +159,56 @@ export function RecordContributionModal({
         </form>
       </div>
     </div>
+  );
+}
+
+export function RecordContributionModal({
+  isOpen,
+  onClose,
+  groupId,
+  cycleOptions = [],
+  defaultAmount,
+}) {
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isOpen || typeof document === 'undefined') return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  const selectedCycleIdInitial = cycleOptions[0]?.id ?? '';
+  const amountInitial = defaultAmount ? String(defaultAmount) : DEFAULT_STATE.amount;
+  const portalTarget = document.body ?? document.getElementById('__next');
+  const modalKey = `${groupId ?? 'group'}-${selectedCycleIdInitial}-${amountInitial}`;
+
+  if (!portalTarget) return null;
+
+  return createPortal(
+    <ModalBody
+      key={modalKey}
+      onClose={onClose}
+      groupId={groupId}
+      cycleOptions={cycleOptions}
+      defaultAmount={defaultAmount}
+      selectedCycleIdInitial={selectedCycleIdInitial}
+      amountInitial={amountInitial}
+    />,
+    portalTarget,
   );
 }
 

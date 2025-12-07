@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAuthedApiQuery } from '../../../hooks/useAuthedApiQuery';
+import { useAuthedApiQuery } from '../../hooks/useAuthedApiQuery';
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return null;

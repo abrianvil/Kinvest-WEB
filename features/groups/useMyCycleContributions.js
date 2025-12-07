@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAuthedApiQuery } from '../../../hooks/useAuthedApiQuery';
+import { useAuthedApiQuery } from '../../hooks/useAuthedApiQuery';
 
 export function useMyCycleContributions(groupId) {
   const path = groupId

@@ -26,6 +26,7 @@
 }
 
 @layer base {
+  html,
   body {
     margin: 0;
     font-family: var(--font-sans);
@@ -67,6 +68,54 @@
   .cta-secondary {
     @apply border border-line text-text-secondary hover:border-text-primary hover:text-text-primary;
   }
+
+  .kin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-tech) var(--color-bg-1);
+  }
+
+  .kin-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .kin-scroll::-webkit-scrollbar-track {
+    background: var(--color-bg-1);
+    border-radius: 999px;
+  }
+
+  .kin-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-accent-tech);
+    border-radius: 999px;
+    border: 2px solid var(--color-bg-1);
+  }
+
+  .kin-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-tech-dim);
+  }
+}
+
+/* Global scrollbar styling to match app language */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent-tech) var(--color-bg-1);
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-bg-1);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-accent-tech);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg-1);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-tech-dim);
 }
 
 /* Clerk auth form tweaks */

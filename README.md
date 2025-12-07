@@ -8,6 +8,14 @@ Full-stack Next.js (pages router) app for running collective saving rotations wi
 - **Features:** Dashboard with rotation snapshot, group/collective pages (invitations, cycles, contributions), wallet console (balances + transactions), notification inbox, invite detail pages.
 - **API proxy:** Local routes under `pages/api` forward to the backend, adding the Clerk bearer token so you don’t fight CORS.
 
+## Architecture at a glance
+
+- **Layouts & common UI:** `components/layouts/AppLayout.js` plus shared icons in `components/`.
+- **Features (domain-first):** `features/dashboard`, `features/groups`, `features/wallets`, `features/notifications` contain hooks/services/components and expose barrels for imports.
+- **Data fetching:** `hooks/useAuthedApiQuery.js` + React Query; requests use `services/apiClient.js` (Clerk token required) and the Next.js proxy by default.
+- **Utilities:** Formatting helpers in `utils/formatters.js`; keep date/currency/enum formatting consistent.
+- **Pages:** Next.js routes under `pages/**` compose feature hooks/components; server data fetching lives in page `getServerSideProps` as needed.
+
 ## Requirements
 
 - Node 18+ and npm.
@@ -63,5 +71,5 @@ npm run dev
 ## Contributing notes
 
 - Tailwind 3.x tokens live in `tailwind.config.js`; shared component styles in `styles/globals.css`.
-- React Query handles data fetching; API hooks live under `components/features/**/use*.js`.
+- React Query handles data fetching; API hooks live under `features/**/use*.js`.
 - Keep proxy auth in place when adding new API calls so Clerk tokens reach the backend.

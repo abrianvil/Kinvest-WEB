@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import AppLayout from '../components/AppLayout';
+import { AppLayout } from '../components/layouts';
 
 function ActivityPage({ user }) {
   return (
