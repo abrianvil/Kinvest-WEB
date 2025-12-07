@@ -54,7 +54,7 @@ function ModalBody({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-night-0/70 p-4 py-10 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-night-0/75 p-4 py-10 backdrop-blur-sm"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose?.();
@@ -65,20 +65,20 @@ function ModalBody({
         role="dialog"
         aria-modal="true"
         aria-labelledby={dialogTitleId}
-        className="w-full max-w-lg overflow-hidden rounded-3xl border border-line/80 bg-night-1/95 shadow-techGlow"
+        className="w-full max-w-lg overflow-hidden rounded-2xl border border-line/70 bg-night-3/95 shadow-card"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 md:px-7">
+        <div className="flex items-center justify-between border-b border-line/70 bg-night-2/80 px-6 py-4 md:px-7">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Contribution</p>
-            <h3 id={dialogTitleId} className="text-xl font-semibold text-text-primary">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Contribution</p>
+            <h3 id={dialogTitleId} className="text-[18px] font-semibold text-text-primary">
               Record payment
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-line px-3 py-1 text-sm text-text-secondary hover:border-accent-tech hover:text-accent-tech"
+            className="rounded-md border border-line px-3 py-1 text-sm text-text-secondary hover:border-warm-2 hover:text-warm-light"
           >
             Close
           </button>
@@ -93,7 +93,7 @@ function ModalBody({
               <select
                 value={selectedCycleId}
                 onChange={(event) => setSelectedCycleId(event.target.value)}
-                className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+                className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
               >
                 {cycleOptions.map((cycle) => (
                   <option key={cycle.id} value={cycle.id}>
@@ -116,7 +116,7 @@ function ModalBody({
                   amount: event.target.value,
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
             />
           </label>
           <label className="space-y-1 text-sm">
@@ -129,17 +129,17 @@ function ModalBody({
                   walletId: event.target.value,
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
               placeholder="Wallet ID"
             />
           </label>
           <button
             type="submit"
             disabled={recordContribution.isPending || hasContributed}
-            className={`w-full rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`w-full rounded-lg border px-4 py-2 text-sm font-semibold transition ${
               recordContribution.isPending || hasContributed
                 ? 'cursor-not-allowed border-line text-text-muted'
-                : 'border-accent-tech text-accent-tech hover:text-accent-tech-dim'
+                : 'border-transparent bg-warm-1 text-night-0 hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1'
             }`}
           >
             {hasContributed

@@ -8,15 +8,17 @@ import { formatCurrency, formatDate, formatEnumLabel } from '../../utils/formatt
 
 function StatCard({ label, value, helper }) {
   return (
-    <div className="rounded-2xl border border-line/70 bg-night-1/50 p-4">
-      <p className="text-xs uppercase tracking-[0.4em] text-text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-text-primary">{value}</p>
+    <div className="rounded-xl border border-line/70 bg-night-3/80 p-4">
+      <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">{label}</p>
+      <p className="mt-2 text-[22px] font-semibold tracking-[0.01em] text-text-primary">{value}</p>
       {helper ? <p className="text-sm text-text-secondary">{helper}</p> : null}
     </div>
   );
 }
 
 function PayoutTimeline({ cycles, memberLookup, currency }) {
+  const [showAll, setShowAll] = useState(false);
+
   if (!cycles.length) {
     return (
       <p className="text-sm text-text-secondary">
@@ -25,9 +27,23 @@ function PayoutTimeline({ cycles, memberLookup, currency }) {
     );
   }
 
+  const visibleCycles = showAll ? cycles : cycles.slice(0, 4);
+
+  const statusTone = (status) => {
+    if (!status) return 'bg-text-muted';
+    const normalized = status.toLowerCase();
+    if (normalized.includes('paid')) return 'bg-accent-tech';
+    if (normalized.includes('pending') || normalized.includes('in_progress')) return 'bg-warm-1';
+    if (normalized.includes('failed')) return 'bg-warm-2';
+    return 'bg-text-secondary';
+  };
+
   return (
-    <ol className="space-y-4">
-      {cycles.map((cycle) => {
+    <>
+      <div className="relative pl-5">
+        <div className="absolute left-2.5 top-2 bottom-2 w-px bg-line/70" aria-hidden="true" />
+        <ol className="space-y-3">
+          {visibleCycles.map((cycle, index) => {
         const receiver =
           cycle.receiver?.displayName ??
           cycle.receiver?.name ??
@@ -37,22 +53,30 @@ function PayoutTimeline({ cycles, memberLookup, currency }) {
           'Unassigned';
 
         return (
-          <li key={cycle.id} className="rounded-2xl border border-line/60 bg-night-0/30 p-4">
+          <li
+            key={cycle.id}
+                className={`relative rounded-xl border border-line/70 pl-4 pr-4 py-3 ${
+              index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+            }`}
+          >
+            <span
+              className={`absolute -left-2.5 top-4 inline-flex h-3 w-3 items-center justify-center rounded-full ring-4 ring-night-2/70 ${statusTone(cycle.status)}`}
+            />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
+                <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">
                   Cycle {cycle.number ?? '—'}
                 </p>
-                <p className="text-base font-semibold text-text-primary">{receiver}</p>
+                <p className="text-sm font-semibold text-text-primary">{receiver}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-semibold text-text-primary">
                   {formatDate(cycle.scheduledDate)}
                 </p>
-                <p className="text-xs text-text-secondary">{formatEnumLabel(cycle.status)}</p>
+                <p className="text-[12px] text-text-secondary">{formatEnumLabel(cycle.status)}</p>
               </div>
             </div>
-            <p className="text-xs text-text-secondary">
+            <p className="text-[12px] text-text-secondary">
               Collected {formatCurrency(cycle.totalReceived ?? 0, currency)} of{' '}
               {formatCurrency(cycle.totalExpected ?? 0, currency)}
             </p>
@@ -71,17 +95,17 @@ function PayoutTimeline({ cycles, memberLookup, currency }) {
                     return (
                       <div
                         key={participant.id}
-                        className={`flex w-full flex-col rounded-xl border px-3 py-1 ${
+                        className={`flex w-full flex-col rounded-lg border px-3 py-2 ${
                           isSettled
-                            ? 'border-accent-tech/50 bg-accent-tech/10 text-accent-tech'
-                            : 'border-line/40 bg-night-1/30 text-text-secondary'
+                            ? 'border-accent-tech-dim/60 bg-night-2/70 text-accent-tech'
+                            : 'border-line/60 bg-night-2/50 text-text-secondary'
                         }`}
                       >
-                        <div className="flex w-full items-center justify-between text-xs">
+                        <div className="flex w-full items-center justify-between text-[12px]">
                           <span>{participantName}</span>
                           <span>{formatCurrency(expected, currency)}</span>
                         </div>
-                        <span className="text-[10px] text-text-muted">
+                        <span className="text-[11px] text-text-muted">
                           {isSettled
                             ? `Paid ${formatCurrency(paid, currency)} of ${formatCurrency(expected, currency)}`
                             : `Paid ${formatCurrency(paid, currency)} of ${formatCurrency(expected, currency)}`}
@@ -93,8 +117,19 @@ function PayoutTimeline({ cycles, memberLookup, currency }) {
             ) : null}
           </li>
         );
-      })}
-    </ol>
+          })}
+        </ol>
+      </div>
+      {cycles.length > 4 ? (
+        <button
+          type="button"
+          onClick={() => setShowAll((prev) => !prev)}
+          className="mt-3 inline-flex items-center gap-2 rounded-md border border-line px-3 py-1 text-xs font-semibold text-text-secondary hover:border-warm-2 hover:text-warm-light"
+        >
+          {showAll ? 'Show fewer cycles' : `Show all ${cycles.length} cycles`}
+        </button>
+      ) : null}
+    </>
   );
 }
 
@@ -105,25 +140,56 @@ function MembersList({ members }) {
 
   return (
     <ul className="space-y-3">
-      {members.map((member) => (
+      {members.map((member, index) => (
         <li
           key={member.id}
-          className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line/70 bg-night-0/30 p-3"
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line/70 p-3 ${
+            index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+          }`}
         >
-          <div>
-            <p className="text-sm font-semibold text-text-primary">
-              {member.user?.displayName ??
-                member.user?.name ??
-                member.user?.email ??
-                'Member'}
-            </p>
-            <p className="text-xs text-text-secondary">
-              {formatEnumLabel(member.role)} • {formatEnumLabel(member.status)}
-            </p>
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 ${
+                index === 0 ? 'border-warm-1' : index === 1 ? 'border-accent-tech-dim' : 'border-line/60'
+              } bg-night-1/70`}
+            >
+              {member.user?.imageUrl || member.user?.profileImageUrl ? (
+                <img
+                  src={member.user.imageUrl ?? member.user.profileImageUrl}
+                  alt={member.user?.displayName ?? member.user?.name ?? 'Member'}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-semibold text-text-primary">
+                  {(member.user?.displayName ?? member.user?.name ?? 'M').slice(0, 1).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">
+                {member.user?.displayName ??
+                  member.user?.name ??
+                  member.user?.email ??
+                  'Member'}
+              </p>
+              <div className="mt-0.5 flex items-center gap-2">
+                <span className="rounded-md border border-line/70 bg-night-2/70 px-2 py-0.5 text-[11px] text-text-secondary">
+                  {formatEnumLabel(member.role)}
+                </span>
+                <span className="text-[11px] uppercase tracking-[0.2em] text-text-muted">
+                  {formatEnumLabel(member.status)}
+                </span>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-text-muted">
-            {member.joinedAt ? `Joined ${formatDate(member.joinedAt)}` : '—'}
-          </p>
+          <div className="text-right">
+            <p className="text-[12px] text-text-muted">
+              {member.lastActiveAt || member.updatedAt || member.joinedAt
+                ? `Last active ${formatDate(member.lastActiveAt ?? member.updatedAt ?? member.joinedAt)}`
+                : 'Activity unknown'}
+            </p>
+            <p className="text-[11px] text-text-secondary">Turn #{index + 1}</p>
+          </div>
         </li>
       ))}
     </ul>
@@ -210,18 +276,6 @@ function GroupDetailPage({ user, groupId }) {
   const payoutHelper = autoPayoutEnabled
     ? `Freq: ${frequencyLabel} • Auto payout on`
     : `Freq: ${frequencyLabel} • Auto payout off`;
-  const monthlyPayout = useMemo(() => {
-    if (Array.isArray(group?.insights?.payoutsByMonth) && group.insights.payoutsByMonth.length) {
-      return group.insights.payoutsByMonth[0].total;
-    }
-    if (cycles.length && cycles[0]?.totalExpected) {
-      return cycles[0].totalExpected;
-    }
-    const base = group?.contributionAmount ?? 0;
-    const participantCount = cycles[0]?.participants?.length ?? memberCount ?? group?.slotCount ?? 0;
-    return base * participantCount;
-  }, [group?.insights?.payoutsByMonth, cycles, group?.contributionAmount, memberCount, group?.slotCount]);
-
   const currentCycle = useMemo(() => {
     if (group?.insights?.currentCycle) {
       return group.insights.currentCycle;
@@ -245,6 +299,33 @@ function GroupDetailPage({ user, groupId }) {
     const firstPending = cycles.find((cycle) => cycle.status !== 'PAID_OUT');
     return firstPending ?? cycles[cycles.length - 1];
   }, [group, cycles, currentCycle]);
+
+  const currentCycleExpected = useMemo(() => {
+    if (!currentCycle) return null;
+    if (typeof currentCycle.totalExpected === 'number') return currentCycle.totalExpected;
+    if (Array.isArray(currentCycle.participants)) {
+      return currentCycle.participants.reduce((sum, participant) => sum + (participant.amountExpected ?? 0), 0);
+    }
+    return null;
+  }, [currentCycle]);
+
+  const currentCycleReceived = useMemo(() => {
+    if (!currentCycle) return null;
+    if (typeof currentCycle.totalReceived === 'number') return currentCycle.totalReceived;
+    if (Array.isArray(currentCycle.participants)) {
+      return currentCycle.participants.reduce((sum, participant) => sum + (participant.amountPaid ?? 0), 0);
+    }
+    return null;
+  }, [currentCycle]);
+
+  const nextCycleExpected = useMemo(() => {
+    if (!nextCycle) return null;
+    if (typeof nextCycle.totalExpected === 'number') return nextCycle.totalExpected;
+    if (Array.isArray(nextCycle.participants)) {
+      return nextCycle.participants.reduce((sum, participant) => sum + (participant.amountExpected ?? 0), 0);
+    }
+    return null;
+  }, [nextCycle]);
 
 
   const nextCycleReceiver = useMemo(() => {
@@ -270,25 +351,26 @@ function GroupDetailPage({ user, groupId }) {
 
   const currentCycleNumber = currentCycle?.number ?? currentCycle?.cycleNumber ?? null;
   const nextCycleNumber = nextCycle?.number ?? nextCycle?.cycleNumber ?? null;
+  const headerMeta = nextCycle ? `Next: Cycle ${nextCycleNumber ?? '—'}` : null;
 
   return (
     <>
       <Head>
         <title>{pageTitle}</title>
       </Head>
-      <AppLayout user={user}>
-        <section className="space-y-4 rounded-3xl border border-line/80 bg-night-2/40 p-5 backdrop-blur">
+      <AppLayout user={user} headerTitle="Group detail" headerMeta={headerMeta}>
+        <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 px-4 py-4 backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Collective</p>
-              <h1 className="text-3xl font-semibold text-text-primary">
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Collective</p>
+              <h1 className="text-[26px] font-semibold leading-tight text-text-primary">
                 {title}
               </h1>
               <p className="text-sm text-text-secondary">
                 {group?.description || 'Track payouts, pay-ins, and the path of the pot.'}
               </p>
             </div>
-            <span className="rounded-full border border-accent-tech px-4 py-1 text-sm font-semibold text-accent-tech">
+            <span className="rounded-md border border-line/70 bg-night-3/70 px-3 py-1 text-[12px] text-text-secondary">
               {formatEnumLabel(group?.status)}
             </span>
           </div>
@@ -297,17 +379,17 @@ function GroupDetailPage({ user, groupId }) {
               type="button"
               onClick={() => refetch()}
               disabled={isLoading}
-              className={`rounded-full border px-4 py-1 text-sm transition ${
+              className={`rounded-md border px-4 py-2 text-sm font-semibold transition ${
                 isLoading
                   ? 'cursor-not-allowed border-line text-text-muted'
-                  : 'border-line text-text-secondary hover:border-accent-tech hover:text-accent-tech'
+                  : 'border-line text-text-secondary hover:border-line/90 hover:text-text-primary'
               }`}
             >
               {isLoading ? 'Refreshing…' : 'Refresh'}
             </button>
             <Link
               href="/groups"
-              className="rounded-full border border-line px-4 py-1 text-sm text-text-secondary transition hover:border-accent-tech hover:text-accent-tech"
+              className="rounded-md border border-line px-4 py-2 text-sm font-semibold text-text-secondary transition hover:border-warm-2 hover:text-warm-light"
             >
               Back to groups
             </Link>
@@ -321,7 +403,7 @@ function GroupDetailPage({ user, groupId }) {
                   amount: group?.contributionAmount ?? '',
                 })
               }
-              className="rounded-full border border-accent-tech px-4 py-1 text-sm text-accent-tech transition hover:text-accent-tech-dim"
+              className="rounded-md bg-warm-1 px-4 py-2 text-sm font-semibold text-night-0 transition hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1"
             >
               Record contribution
             </button>
@@ -339,8 +421,20 @@ function GroupDetailPage({ user, groupId }) {
         <section className="grid gap-4 md:grid-cols-4">
           <StatCard
             label="payout"
-            value={formatCurrency(monthlyPayout, group?.currency ?? 'USD')}
-            helper={payoutHelper}
+            value={
+              currentCycleExpected !== null
+                ? formatCurrency(currentCycleExpected, group?.currency ?? 'USD')
+                : nextCycleExpected !== null
+                ? formatCurrency(nextCycleExpected, group?.currency ?? 'USD')
+                : '—'
+            }
+            helper={
+              currentCycleExpected !== null
+                ? `Collected ${formatCurrency(currentCycleReceived ?? 0, group?.currency ?? 'USD')} of ${formatCurrency(currentCycleExpected, group?.currency ?? 'USD')}`
+                : nextCycleExpected !== null
+                ? `Next cycle target • ${payoutHelper}`
+                : payoutHelper
+            }
           />
           <StatCard
             label="Members"
@@ -372,13 +466,13 @@ function GroupDetailPage({ user, groupId }) {
         </section>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <section className="space-y-4 rounded-3xl border border-line/80 bg-night-2/40 p-5 backdrop-blur">
+          <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Payout order</p>
-                <h2 className="text-2xl font-semibold text-text-primary">Rotation timeline</h2>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Payout order</p>
+                <h2 className="text-[22px] font-semibold text-text-primary">Rotation timeline</h2>
               </div>
-              <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+              <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
                 {cycles.length ? `${cycles.length} tracked cycles` : 'No cycles yet'}
               </span>
             </div>
@@ -389,13 +483,13 @@ function GroupDetailPage({ user, groupId }) {
             />
           </section>
 
-          <section className="space-y-4 rounded-3xl border border-line/80 bg-night-2/40 p-5 backdrop-blur">
+          <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Members</p>
-                <h2 className="text-2xl font-semibold text-text-primary">Collective roster</h2>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Members</p>
+                <h2 className="text-[22px] font-semibold text-text-primary">Collective roster</h2>
               </div>
-              <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+              <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
                 {memberCount} total
               </span>
             </div>
@@ -403,28 +497,30 @@ function GroupDetailPage({ user, groupId }) {
           </section>
         </div>
 
-        <section className="space-y-4 rounded-3xl border border-line/80 bg-night-2/40 p-5 backdrop-blur">
+        <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Payout history</p>
-              <h2 className="text-2xl font-semibold text-text-primary">Recent distributions</h2>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Payout history</p>
+              <h2 className="text-[22px] font-semibold text-text-primary">Recent distributions</h2>
             </div>
-            <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
+            <span className="rounded-md border border-line px-3 py-1 text-[11px] text-text-secondary">
               {group?.insights?.payoutHistory?.length ?? 0} records
             </span>
           </div>
           <div className="space-y-3">
             {Array.isArray(group?.insights?.payoutHistory) && group.insights.payoutHistory.length ? (
-              group.insights.payoutHistory.map((payout) => (
+              group.insights.payoutHistory.map((payout, index) => (
                 <div
                   key={payout.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line/70 bg-night-1/40 px-4 py-3 text-sm"
+                  className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line/70 px-4 py-3 text-sm ${
+                    index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+                  }`}
                 >
                   <div>
                     <p className="font-semibold text-text-primary">
                       {payout.receiver?.displayName ?? payout.receiver?.email ?? 'Member'}
                     </p>
-                    <p className="text-xs text-text-muted">
+                    <p className="text-[12px] text-text-muted">
                       Cycle {payout.cycleNumber ?? '—'} • {formatDate(payout.scheduledDate ?? payout.paidAt ?? null)}
                     </p>
                   </div>
@@ -432,7 +528,7 @@ function GroupDetailPage({ user, groupId }) {
                     <p className="font-semibold text-text-primary">
                       {formatCurrency(payout.amount ?? 0, group?.currency ?? 'USD')}
                     </p>
-                    <p className="text-xs text-text-muted">{formatEnumLabel(payout.status)}</p>
+                    <p className="text-[12px] text-text-muted">{formatEnumLabel(payout.status)}</p>
                   </div>
                 </div>
               ))

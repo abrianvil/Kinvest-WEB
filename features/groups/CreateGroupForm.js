@@ -142,12 +142,12 @@ export function CreateGroupForm({ onCreated }) {
   };
 
   return (
-    <section className="space-y-4 rounded-3xl border border-line/70 bg-night-2/40 p-5 backdrop-blur">
+    <section className="space-y-4 rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
       <header className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
+        <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">
           Create a group
         </p>
-        <h2 className="text-3xl font-semibold text-text-primary">
+        <h2 className="text-[22px] font-semibold text-text-primary">
           Launch a new collective
         </h2>
         <p className="text-sm text-text-secondary">
@@ -162,7 +162,7 @@ export function CreateGroupForm({ onCreated }) {
               name="name"
               value={formState.name}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
               placeholder="Ex: Copper Circle"
               required
             />
@@ -181,7 +181,7 @@ export function CreateGroupForm({ onCreated }) {
                   currency: event.target.value.toUpperCase(),
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 uppercase text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 uppercase text-text-primary focus:border-accent-tech-dim focus:outline-none"
               maxLength={3}
               required
             />
@@ -197,7 +197,7 @@ export function CreateGroupForm({ onCreated }) {
             name="description"
             value={formState.description}
             onChange={handleChange}
-            className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
             rows={3}
             placeholder="Optional context for organizers"
           />
@@ -210,16 +210,16 @@ export function CreateGroupForm({ onCreated }) {
           <label className="space-y-1 text-sm">
             <span className="text-text-secondary">Contribution amount</span>
             <input
-              name="contributionAmount"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formState.contributionAmount}
-              onChange={handleNumberChange}
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
-              placeholder="100"
-              required
-            />
+            name="contributionAmount"
+            type="number"
+            min="0"
+            step="0.01"
+            value={formState.contributionAmount}
+            onChange={handleNumberChange}
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
+            placeholder="100"
+            required
+          />
             {errors.contributionAmount ? (
               <span className="text-xs text-warm-light">
                 {errors.contributionAmount}
@@ -229,31 +229,31 @@ export function CreateGroupForm({ onCreated }) {
           <label className="space-y-1 text-sm">
             <span className="text-text-secondary">Frequency</span>
             <select
-              name="frequency"
-              value={formState.frequency}
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
-            >
-              {FREQUENCY_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option.replace('_', ' ')}
-                </option>
+            name="frequency"
+            value={formState.frequency}
+            onChange={handleChange}
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
+          >
+            {FREQUENCY_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option.replace('_', ' ')}
+              </option>
               ))}
             </select>
           </label>
           <label className="space-y-1 text-sm">
             <span className="text-text-secondary">Rotation strategy</span>
             <select
-              name="rotationStrategy"
-              value={formState.rotationStrategy}
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
-            >
-              {ROTATION_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option.replace('_', ' ')}
-                </option>
-              ))}
+            name="rotationStrategy"
+            value={formState.rotationStrategy}
+            onChange={handleChange}
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
+          >
+            {ROTATION_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option.replace('_', ' ')}
+              </option>
+            ))}
             </select>
           </label>
         </div>
@@ -273,7 +273,7 @@ export function CreateGroupForm({ onCreated }) {
                   slotCount: clampNumber(event.target.value, 2, 50),
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
             />
             {errors.slotCount ? (
               <span className="text-xs text-warm-light">{errors.slotCount}</span>
@@ -293,7 +293,7 @@ export function CreateGroupForm({ onCreated }) {
                   lateFeePercent: event.target.value,
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
             />
             {errors.lateFeePercent ? (
               <span className="text-xs text-warm-light">
@@ -315,7 +315,7 @@ export function CreateGroupForm({ onCreated }) {
                   gracePeriodDays: clampNumber(event.target.value, 0, 30),
                 }))
               }
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+              className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
             />
             {errors.gracePeriodDays ? (
               <span className="text-xs text-warm-light">
@@ -332,7 +332,7 @@ export function CreateGroupForm({ onCreated }) {
             type="date"
             value={formState.cycleStartDate}
             onChange={handleChange}
-            className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
           />
           <span className="text-xs text-text-muted">Optional: schedule the first rotation immediately.</span>
         </label>
@@ -340,13 +340,13 @@ export function CreateGroupForm({ onCreated }) {
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-sm">
             <span className="text-text-secondary">Template ID (optional)</span>
-            <input
-              name="templateId"
-              value={formState.templateId}
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-line bg-night-0/20 px-3 py-2 text-text-primary focus:border-accent-tech focus:outline-none"
-              placeholder="cuid..."
-            />
+          <input
+            name="templateId"
+            value={formState.templateId}
+            onChange={handleChange}
+            className="w-full rounded-lg border border-line bg-night-3/70 px-3 py-2 text-text-primary focus:border-accent-tech-dim focus:outline-none"
+            placeholder="cuid..."
+          />
           </label>
         </div>
 
@@ -358,10 +358,10 @@ export function CreateGroupForm({ onCreated }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`rounded-full border px-6 py-2 text-sm font-semibold transition ${
+            className={`rounded-md px-6 py-2 text-sm font-semibold transition ${
               isSubmitting
                 ? 'cursor-not-allowed border-line text-text-muted'
-                : 'border-accent-tech text-accent-tech hover:text-accent-tech-dim'
+                : 'bg-warm-1 text-night-0 hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1'
             }`}
           >
             {isSubmitting ? 'Creating…' : 'Create group'}

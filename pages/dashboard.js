@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { clerkClient, getAuth } from '@clerk/nextjs/server';
@@ -70,6 +70,13 @@ const toAmount = (value) => {
   return Number.isNaN(parsed) ? 0 : parsed;
 };
 
+const toDateValue = (value) => {
+  if (!value) return null;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 async function resolveServerToken(authData) {
   if (!authData?.getToken) return null;
   try {
@@ -94,6 +101,7 @@ const CONTRIBUTION_MODAL_INITIAL = {
 
 function Dashboard({ user, overview }) {
   const [contributionModal, setContributionModal] = useState(CONTRIBUTION_MODAL_INITIAL);
+  const [countdownLabel, setCountdownLabel] = useState('');
   const overviewQuery = useDashboardOverviewQuery({
     placeholderData: overview ?? null,
   });
@@ -154,6 +162,7 @@ function Dashboard({ user, overview }) {
     let nextCycleLabel = 'TBD';
     let nextCycleId = null;
     let cycleOption = null;
+    let nextCycleDateRaw = toDateValue(group?.nextCycle?.scheduledDate ?? group?.nextCycle?.date ?? group?.nextCycleAt ?? group?.nextCycleDate);
     if (typeof group.nextCycle === 'string' || typeof group.nextCycle === 'number') {
       nextCycleLabel = String(group.nextCycle);
     } else if (group.nextCycle) {
@@ -167,6 +176,9 @@ function Dashboard({ user, overview }) {
     } else {
       nextCycleLabel = deriveNextCycle(group);
     }
+    if (!nextCycleDateRaw) {
+      nextCycleDateRaw = toDateValue(group?.nextCycle);
+    }
 
     return {
       id: group.id,
@@ -178,15 +190,73 @@ function Dashboard({ user, overview }) {
         ? [{ ...cycleOption, hasContributed: false }]
         : [{ id: `${group.id}-next`, number: '?', date: 'Next cycle', hasContributed: false }],
       contributionValue,
+      nextCycleDate: nextCycleDateRaw,
     };
   });
+
+  const totalUpcomingAmount = rotationRows.reduce((sum, row) => sum + (row.contributionValue || 0), 0);
+  const nextCycleDescriptor = rotationRows[0]?.nextCycleLabel ?? 'No cycles scheduled';
+  // Live countdown to the nearest upcoming cycle (future date only).
+  useEffect(() => {
+    const futureDates = rotationRows
+      .map((row) => row.nextCycleDate)
+      .filter((date) => date instanceof Date);
+
+    let cancelled = false;
+
+    const updateCountdown = () => {
+      if (cancelled) return;
+      if (!futureDates.length) {
+        setCountdownLabel('');
+        return;
+      }
+      const now = Date.now();
+      const nextDate =
+        futureDates
+          .filter((date) => date.getTime() > now)
+          .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
+      if (!nextDate) {
+        setCountdownLabel('');
+        return;
+      }
+      const diff = nextDate.getTime() - now;
+      if (diff <= 0) {
+        setCountdownLabel('Cycle is starting');
+        return;
+      }
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      parts.push(`${hours.toString().padStart(2, '0')}h`);
+      parts.push(`${minutes.toString().padStart(2, '0')}m`);
+      setCountdownLabel(`Next cycle in ${parts.join(' ')}`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000 * 15);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [rotationRows]);
 
   return (
     <>
       <Head>
         <title>Workspace • Kinvest</title>
       </Head>
-      <AppLayout user={user}>
+      <AppLayout
+        user={user}
+        headerTitle="Overview"
+        headerMeta={
+          rotationRows.length
+            ? countdownLabel || `Next cycle: ${nextCycleDescriptor}`
+            : null
+        }
+      >
         {hasError ? (
           <div className="rounded-2xl border border-warm-soft/40 bg-warm-soft/10 p-4 text-sm text-warm-light">
             Some panels failed to load live data. Try refreshing or check the API logs.
@@ -198,169 +268,199 @@ function Dashboard({ user, overview }) {
           </div>
         ) : null}
 
-        <section className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-line/70 bg-night-2/40 px-5 py-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Workspace</p>
-            <h2 className="text-2xl font-semibold text-text-primary">Rotation snapshot</h2>
-            <p className="text-sm text-text-secondary">Metrics update every minute while you manage groups.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => openCreateGroup()}
-            className="inline-flex items-center gap-2 rounded-full bg-accent-tech px-4 py-2 text-sm font-semibold text-night-0 shadow-techGlow transition hover:brightness-110"
-          >
-            <PlusIcon className="h-4 w-4" />
-            New group
-          </button>
-        </section>
-
-        <section className="rounded-3xl border border-line/80 bg-night-2/50 p-5 backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+        <section className="rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-text-muted">My rotation</p>
-              <h3 className="text-xl font-semibold text-text-primary">Upcoming contributions</h3>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Rotation</p>
+              <h2 className="text-[22px] font-semibold text-text-primary">Contributions & turns</h2>
+              <p className="text-sm text-text-secondary">Live rotation timeline and due amounts.</p>
             </div>
-            <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
-              {rotationRows.length} active
-            </span>
-          </div>
-          <div className="mt-4 space-y-3">
-            {rotationRows.length ? (
-              rotationRows.map((row) => (
-                <div
-                  key={row.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line/60 bg-night-1/40 px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-text-primary">{row.name ?? 'Untitled group'}</p>
-                    <p className="text-xs text-text-muted">
-                      {row.contribution} • Next cycle: {row.nextCycleLabel}
-                    </p>
-                  </div>
-                  <Link
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setContributionModal({
-                        isOpen: true,
-                        groupId: row.id,
-                        cycleOptions: row.cycleOptions,
-                        amount: row.contributionValue,
-                      });
-                    }}
-                    className="rounded-full border border-accent-tech px-3 py-1 text-xs font-semibold text-accent-tech transition hover:text-accent-tech-dim"
-                  >
-                    Record contribution
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-text-secondary">
-                No rotations yet. Create a group to get started.
-              </p>
-            )}
-          </div>
-        </section>
-
-        <section className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <article className="rounded-3xl border border-line/80 bg-night-2/50 p-5 backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Your groups</p>
-                <h3 className="text-2xl font-semibold text-text-primary">Collectives</h3>
-              </div>
-              <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
-                {membershipGroups.length} total
+            <div className="flex items-center gap-2">
+              <span className="rounded-md border border-line px-2.5 py-1 text-[11px] text-text-secondary">
+                {rotationRows.length} active
               </span>
+              <button
+                type="button"
+                onClick={() => openCreateGroup()}
+                className="inline-flex items-center gap-2 rounded-lg bg-warm-1 px-4 py-2 text-sm font-semibold text-night-0 transition hover:bg-warm-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warm-1"
+              >
+                <PlusIcon className="h-4 w-4" />
+                New group
+              </button>
             </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {membershipGroups.length ? (
-                membershipGroups.map((group) => (
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-3">
+              {rotationRows.length ? (
+                rotationRows.map((row, index) => (
                   <div
-                    key={group.name}
-                    className="rounded-2xl border border-line/50 bg-night-1/40 p-4"
+                    key={row.id}
+                    className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line/70 px-4 py-3 ${
+                      index % 2 === 0 ? 'bg-night-3/80' : 'bg-night-3/60'
+                    }`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-text-primary">{group.name}</p>
-                      <span className="rounded-full border border-line px-2 py-0.5 text-[11px] text-text-secondary">
-                        {deriveGroupStatus(group)}
-                      </span>
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">{row.name ?? 'Untitled group'}</p>
+                      <p className="text-[13px] text-text-muted">
+                        {row.contribution} • Next cycle {row.nextCycleLabel}
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-text-muted">
-                      {group.contribution ?? formatCurrency(group.contributionAmount, group.currency ?? preferredCurrency)} per member
-                    </p>
-                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary">
-                      <span>{deriveMemberCount(group)} members</span>
-                      <span className="text-text-warm">Next cycle: {deriveNextCycle(group)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-md border border-line/60 bg-night-1/70 px-2.5 py-1 text-[11px] text-accent-tech-dim">
+                        Next: {row.nextCycleLabel}
+                      </span>
+                      <Link
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setContributionModal({
+                            isOpen: true,
+                            groupId: row.id,
+                            cycleOptions: row.cycleOptions,
+                            amount: row.contributionValue,
+                          });
+                        }}
+                        className="rounded-md border border-line px-3 py-1 text-xs font-semibold text-text-secondary transition hover:border-warm-2 hover:text-warm-light"
+                      >
+                        Record contribution
+                      </Link>
                     </div>
                   </div>
                 ))
               ) : (
                 <p className="text-sm text-text-secondary">
-                  No collectives yet. Start one to see it here.
+                  No rotations yet. Create a group to get started.
                 </p>
               )}
             </div>
-          </article>
+            <div className="rounded-xl border border-line/70 bg-night-3/80 p-4">
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Snapshot</p>
+              <div className="mt-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-text-secondary">Upcoming total</span>
+                  <span className="text-lg font-semibold text-text-primary tracking-[0.02em]">
+                    {formatCurrency(totalUpcomingAmount, preferredCurrency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-text-secondary">Pending in wallet</span>
+                  <span className="text-sm font-semibold text-text-primary">
+                    {formatCurrency(walletSummary.pending, preferredCurrency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-text-secondary">Next cycle</span>
+                  <span className="text-sm text-accent-tech">{nextCycleDescriptor}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-          <article className="rounded-3xl border border-line/80 bg-night-2/50 p-5 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Wallets</p>
-                <h3 className="text-2xl font-semibold text-text-primary">Ledger</h3>
-              </div>
-              <span className="rounded-full border border-line px-3 py-1 text-xs text-text-secondary">
-                {walletSummary.note}
-              </span>
+        <section className="rounded-2xl border border-line/70 bg-night-2/70 p-5 backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Workspace</p>
+              <h3 className="text-[22px] font-semibold text-text-primary">Collectives & ledger</h3>
+              <p className="text-sm text-text-secondary">Group roster and money flow in one view.</p>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-text-muted">Available</p>
-                <p className="mt-1 text-lg font-semibold text-text-primary">
-                  {formatCurrency(walletSummary.available, preferredCurrency)}
-                </p>
+            <span className="rounded-md border border-line px-2.5 py-1 text-[11px] text-text-secondary">
+              {membershipGroups.length} groups
+            </span>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <article className="rounded-xl border border-line/70 bg-night-3/80 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-text-primary">Collectives</p>
+                <span className="rounded-md border border-line/70 px-2.5 py-1 text-[11px] text-text-secondary">
+                  {membershipGroups.length} total
+                </span>
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-text-muted">Pending</p>
-                <p className="mt-1 text-lg font-semibold text-text-primary">
-                  {formatCurrency(walletSummary.pending, preferredCurrency)}
-                </p>
+              <div className="mt-3 divide-y divide-line/60">
+                {membershipGroups.length ? (
+                  membershipGroups.map((group) => (
+                    <div key={group.name} className="flex items-start justify-between gap-3 py-2">
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{group.name}</p>
+                        <p className="text-[12px] text-text-muted">
+                          {group.contribution ??
+                            formatCurrency(group.contributionAmount, group.currency ?? preferredCurrency)}{' '}
+                          per member
+                        </p>
+                        <p className="text-[12px] text-text-warm">Next cycle: {deriveNextCycle(group)}</p>
+                      </div>
+                      <span className="rounded-md border border-line/70 bg-night-1/70 px-2 py-0.5 text-[11px] text-text-secondary">
+                        {deriveGroupStatus(group)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="py-2 text-sm text-text-secondary">No collectives yet. Start one to see it here.</p>
+                )}
               </div>
-            </div>
-            {ledger.length ? (
-              <ul className="mt-5 space-y-3 max-h-80 overflow-y-auto pr-1">
-                {ledger.map((entry, index) => (
-                  <li
-                    key={`${entry.id ?? entry.label ?? entry.description}-${entry.date ?? entry.createdAt ?? index}`}
-                    className="flex items-center justify-between rounded-2xl border border-line/60 bg-night-1/50 p-3 text-sm"
-                  >
-                    <div>
-                      <p className="font-semibold text-text-primary">{entry.label ?? entry.description ?? 'Entry'}</p>
-                      <p className="text-xs text-text-muted">{entry.date ?? entry.createdAt ?? ''}</p>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={`font-semibold ${
-                          (entry.amount ?? '').toString().trim().startsWith('+') || entry.direction === 'CREDIT'
-                            ? 'text-accent-tech'
-                            : 'text-text-secondary'
-                        }`}
-                      >
-                        {typeof entry.amount === 'number'
-                          ? formatCurrency(entry.amount, entry.currency ?? preferredCurrency)
-                          : entry.amount ?? '—'}
-                      </p>
-                      <p className="text-xs text-text-muted">{entry.status ?? entry.type ?? 'Status unknown'}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-sm text-text-secondary">
-                No ledger entries yet. Activity will appear here once transactions post.
-              </p>
-            )}
-          </article>
+            </article>
+
+            <article className="rounded-xl border border-line/70 bg-night-3/80 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.35em] text-text-muted">Wallets</p>
+                  <h4 className="text-[18px] font-semibold text-text-primary">Ledger</h4>
+                </div>
+                <span className="rounded-md border border-line/70 px-2.5 py-1 text-[11px] text-text-secondary">
+                  {walletSummary.note}
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-line/70 bg-night-2/50 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-text-muted">Available</p>
+                  <p className="mt-1 text-xl font-semibold tracking-[0.02em] text-text-primary">
+                    {formatCurrency(walletSummary.available, preferredCurrency)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-line/70 bg-night-2/50 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-text-muted">Pending</p>
+                  <p className="mt-1 text-xl font-semibold tracking-[0.02em] text-text-primary">
+                    {formatCurrency(walletSummary.pending, preferredCurrency)}
+                  </p>
+                </div>
+              </div>
+              {ledger.length ? (
+                <ul className="mt-4 overflow-hidden rounded-lg border border-line/70 bg-night-2/40">
+                  {ledger.map((entry, index) => (
+                    <li
+                      key={`${entry.id ?? entry.label ?? entry.description}-${entry.date ?? entry.createdAt ?? index}`}
+                      className={`flex items-center justify-between px-3 py-3 text-sm ${
+                        index % 2 === 0 ? 'bg-night-3/60' : 'bg-night-3/40'
+                      }`}
+                    >
+                      <div>
+                        <p className="font-semibold text-text-primary">{entry.label ?? entry.description ?? 'Entry'}</p>
+                        <p className="text-[12px] text-text-muted">{entry.date ?? entry.createdAt ?? ''}</p>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`font-semibold tracking-[0.02em] ${
+                            (entry.amount ?? '').toString().trim().startsWith('+') || entry.direction === 'CREDIT'
+                              ? 'text-accent-tech'
+                              : 'text-text-secondary'
+                          }`}
+                        >
+                          {typeof entry.amount === 'number'
+                            ? formatCurrency(entry.amount, entry.currency ?? preferredCurrency)
+                            : entry.amount ?? '—'}
+                        </p>
+                        <p className="text-[12px] text-text-muted">{entry.status ?? entry.type ?? 'Status unknown'}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 text-sm text-text-secondary">
+                  No ledger entries yet. Activity will appear here once transactions post.
+                </p>
+              )}
+            </article>
+          </div>
         </section>
         <RecordContributionModal
           isOpen={contributionModal.isOpen}
